@@ -7,7 +7,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const redis = Redis.fromEnv();
 const ratelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.fixedWindow(6, '1 d'),
+  limiter: Ratelimit.fixedWindow(3, '1 d'),
   analytics: true
 });
 
@@ -320,18 +320,18 @@ function fitLabel(studentGpa4, uniMinGpa) {
   return 'فرصة صعبة - تحتاج نقاط قوة إضافية';
 }
 
-function parseCountries(countriesText) {
-  const t = (countriesText || '').toLowerCase();
+function parseCountries(countriesInput) {
+  const t = (Array.isArray(countriesInput) ? countriesInput.join(' ') : (countriesInput || '')).toLowerCase();
   const countries = [];
-  if (/usa|america|united states|أمريك|ولايات/.test(t)) countries.push('الولايات المتحدة');
+  if (/usa|america|united states|أمريك|ولايات|الولايات المتحدة/.test(t)) countries.push('الولايات المتحدة');
   if (/uk|britain|england|scotland|wales|united kingdom|بريطان|إنجل|المملكة المتحدة|إسكتلن|ويلز/.test(t)) countries.push('المملكة المتحدة');
   if (/canada|كند/.test(t)) countries.push('كندا');
   if (/australia|أسترال/.test(t)) countries.push('أستراليا');
   if (/japan|يابان/.test(t)) countries.push('اليابان');
-  if (/korea|كوري/.test(t)) countries.push('كوريا الجنوبية');
+  if (/korea|كوري|southkorea/.test(t)) countries.push('كوريا الجنوبية');
   if (/spain|إسبان|اسبان/.test(t)) countries.push('إسبانيا');
-  if (/new zealand|نيوزيل/.test(t)) countries.push('نيوزيلندا');
-  return countries.length > 0 ? countries : ['الولايات المتحدة', 'المملكة المتحدة', 'كندا', 'أستراليا', 'اليابان', 'كوريا الجنوبية', 'إسبانيا', 'نيوزيلندا'];
+  if (/new zealand|نيوزيل|newzealand/.test(t)) countries.push('نيوزيلندا');
+  return countries.length > 0 ? countries : ['الولايات المتحدة', 'المملكة المتحدة', 'كندا', 'أستراليا'];
 }
 
 function filterUniversities(answers) {
@@ -419,7 +419,8 @@ function getRequirements(answers) {
 }
 
 function profileKey(answers) {
-  const key = `${answers.academicLevel}|${Math.floor(parseFloat(answers.gpa || 0) * 2) / 2}|${answers.gpaScale}|${answers.english}|${(answers.field || '').toLowerCase().trim().substring(0, 30)}|${answers.degreeLevel}|${(answers.countries || '').toLowerCase().trim().substring(0, 30)}|${answers.budget}|${answers.gender}|${answers.mahram || ''}`;
+  const countriesStr = Array.isArray(answers.countries) ? answers.countries.join(',') : (answers.countries || '');
+  const key = `${answers.academicLevel}|${Math.floor(parseFloat(answers.gpa || 0) * 2) / 2}|${answers.gpaScale}|${answers.english}|${(answers.field || '').toLowerCase().trim().substring(0, 30)}|${answers.degreeLevel}|${countriesStr.substring(0, 30)}|${answers.budget}|${answers.gender}|${answers.mahram || ''}`;
   return 'rec2:' + crypto.createHash('sha256').update(key).digest('hex').substring(0, 16);
 }
 
@@ -437,6 +438,9 @@ export default async function handler(req, res) {
     }
 
     const answers = req.body;
+    if (Array.isArray(answers.countries)) {
+      answers.countriesText = answers.countriesText || answers.countries.join('، ');
+    }
     if (!answers || !answers.field || !answers.academicLevel) {
       return res.status(400).json({ error: 'بيانات ناقصة' });
     }
