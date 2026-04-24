@@ -7,7 +7,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const redis = Redis.fromEnv();
 const ratelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.fixedWindow(3, '1 d'),
+  limiter: Ratelimit.fixedWindow(6, '1 d'),
   analytics: true
 });
 
