@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Printer, RotateCcw, GraduationCap, Globe, Mail, ExternalLink, Award, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Printer, RotateCcw, GraduationCap, Globe, Mail, ExternalLink, Award, Sparkles, ListChecks, FileText } from 'lucide-react';
 import Head from 'next/head';
 
 export default function Home() {
@@ -8,7 +8,8 @@ export default function Home() {
   const [answers, setAnswers] = useState({
     academicLevel: '', currentInstitution: '', gpa: '', gpaScale: '4',
     english: '', englishScore: '', field: '', degreeLevel: '',
-    countries: '', budget: '', gender: '', goals: ''
+    countries: '', budget: '', gender: '', mahram: '',
+    passions: '', goals: ''
   });
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
@@ -21,7 +22,7 @@ export default function Home() {
     document.head.appendChild(link);
   }, []);
 
-  const questions = [
+  const baseQuestions = [
     { key: 'academicLevel', label: 'ما هو مستواك الأكاديمي الحالي؟', hint: 'اختر المرحلة التي أكملتها أو تدرس بها حالياً', type: 'select',
       options: [
         { value: 'highschool', label: 'طالب ثانوية أو خريج حديث' },
@@ -53,19 +54,30 @@ export default function Home() {
         { value: 'undecided', label: 'لم أحدد بعد' }
       ]
     },
-    { key: 'gender', label: 'الجنس', hint: 'بعض البرامج الحكومية لها شروط مرتبطة بالجنس', type: 'select',
+    { key: 'gender', label: 'الجنس', hint: 'بعض البرامج لها شروط خاصة', type: 'select',
       options: [
         { value: 'male', label: 'ذكر' },
         { value: 'female', label: 'أنثى' }
       ]
     },
-    { key: 'goals', label: 'ما هي أهدافك المهنية بعد التخرج؟', hint: 'صف باختصار', type: 'textarea', placeholder: 'اكتب أهدافك هنا' }
+    { key: 'mahram', label: 'هل سيرافقك محرم أثناء الدراسة؟', hint: 'هذا السؤال للطالبات فقط ويؤثر على اشتراطات بعض البرامج والدول', type: 'select',
+      options: [
+        { value: 'yes', label: 'نعم، سيرافقني محرم' },
+        { value: 'no', label: 'لا' },
+        { value: 'unsure', label: 'لم أقرر بعد' }
+      ],
+      showIf: (a) => a.gender === 'female'
+    },
+    { key: 'passions', label: 'ما هي إنجازاتك وما الذي استمتعت به أكثر في دراستك؟', hint: 'حدثنا عن المشاريع أو المواد أو الأنشطة التي أحببتها، هذا يساعدنا على فهم شغفك الحقيقي', type: 'textarea', placeholder: 'مثال: شاركت في مسابقة روبوتات، أحببت مادة الدوائر الكهربائية، قدت فريق تخرج...' },
+    { key: 'goals', label: 'ما هي أهدافك المهنية بعد التخرج؟', hint: 'صف باختصار ما تطمح إليه', type: 'textarea', placeholder: 'اكتب أهدافك هنا' }
   ];
 
+  const questions = baseQuestions.filter(q => !q.showIf || q.showIf(answers));
   const currentQ = questions[step];
   const totalSteps = questions.length;
 
   const isStepValid = () => {
+    if (!currentQ) return false;
     if (currentQ.key === 'gpa') return answers.gpa && parseFloat(answers.gpa) > 0;
     if (currentQ.key === 'english') return answers.english !== '';
     return answers[currentQ.key] && answers[currentQ.key].toString().trim() !== '';
@@ -113,7 +125,8 @@ export default function Home() {
     setAnswers({
       academicLevel: '', currentInstitution: '', gpa: '', gpaScale: '4',
       english: '', englishScore: '', field: '', degreeLevel: '',
-      countries: '', budget: '', gender: '', goals: ''
+      countries: '', budget: '', gender: '', mahram: '',
+      passions: '', goals: ''
     });
     setResults(null);
     setError(null);
@@ -152,7 +165,7 @@ export default function Home() {
         </div>
       )}
 
-      {screen === 'questionnaire' && (() => {
+      {screen === 'questionnaire' && currentQ && (() => {
         const progress = ((step + 1) / totalSteps) * 100;
         return (
           <div style={baseStyle}>
@@ -275,79 +288,113 @@ export default function Home() {
                   </div>
                 )}
 
-                <section style={{ marginBottom: '64px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', paddingBottom: '16px', borderBottom: '1px solid #eaeaea' }}>
-                    <Award size={22} strokeWidth={1.5} color="#111" />
-                    <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#111', margin: 0 }}>البرامج الحكومية المناسبة لك</h2>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {results.programs && results.programs.map((p, i) => (
-                      <div key={i} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '18px', padding: '28px' }}>
-                        <h3 style={{ fontSize: '19px', fontWeight: '500', color: '#111', marginBottom: '12px', marginTop: 0 }}>{p.name}</h3>
-                        <p style={{ fontSize: '14px', color: '#555', lineHeight: '1.9', marginBottom: '16px', fontWeight: '300' }}>{p.description}</p>
-                        {p.eligibility && (
-                          <div style={{ marginBottom: '12px' }}>
-                            <span style={{ fontSize: '12px', color: '#999', display: 'block', marginBottom: '6px' }}>شروط الأهلية</span>
-                            <p style={{ fontSize: '14px', color: '#444', lineHeight: '1.8', margin: 0, fontWeight: '300' }}>{p.eligibility}</p>
-                          </div>
-                        )}
-                        {p.fit && (
-                          <div style={{ marginBottom: '20px', padding: '14px 16px', background: '#f7f7f7', borderRadius: '10px' }}>
-                            <span style={{ fontSize: '12px', color: '#777', display: 'block', marginBottom: '4px' }}>لماذا يناسبك</span>
-                            <p style={{ fontSize: '14px', color: '#333', margin: 0, lineHeight: '1.8' }}>{p.fit}</p>
-                          </div>
-                        )}
-                        {p.link && (
-                          <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#111', fontSize: '14px', fontWeight: '500', padding: '10px 18px', border: '1px solid #111', borderRadius: '999px' }}>
-                            <span>{p.linkLabel || 'زيارة الموقع الرسمي'}</span><ExternalLink size={13} />
-                          </a>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
+                {results.programs && results.programs.length > 0 && (
+                  <section style={{ marginBottom: '64px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', paddingBottom: '16px', borderBottom: '1px solid #eaeaea' }}>
+                      <Award size={22} strokeWidth={1.5} color="#111" />
+                      <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#111', margin: 0 }}>البرامج الحكومية المناسبة لك</h2>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {results.programs.map((p, i) => (
+                        <div key={i} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '18px', padding: '28px' }}>
+                          <h3 style={{ fontSize: '19px', fontWeight: '500', color: '#111', marginBottom: '12px', marginTop: 0 }}>{p.name}</h3>
+                          <p style={{ fontSize: '14px', color: '#555', lineHeight: '1.9', marginBottom: '16px', fontWeight: '300' }}>{p.description}</p>
+                          {p.eligibility && (
+                            <div style={{ marginBottom: '12px' }}>
+                              <span style={{ fontSize: '12px', color: '#999', display: 'block', marginBottom: '6px' }}>شروط الأهلية</span>
+                              <p style={{ fontSize: '14px', color: '#444', lineHeight: '1.8', margin: 0, fontWeight: '300' }}>{p.eligibility}</p>
+                            </div>
+                          )}
+                          {p.fit && (
+                            <div style={{ marginBottom: '20px', padding: '14px 16px', background: '#f7f7f7', borderRadius: '10px' }}>
+                              <span style={{ fontSize: '12px', color: '#777', display: 'block', marginBottom: '4px' }}>لماذا يناسبك</span>
+                              <p style={{ fontSize: '14px', color: '#333', margin: 0, lineHeight: '1.8' }}>{p.fit}</p>
+                            </div>
+                          )}
+                          {p.link && (
+                            <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#111', fontSize: '14px', fontWeight: '500', padding: '10px 18px', border: '1px solid #111', borderRadius: '999px' }}>
+                              <span>{p.linkLabel || 'زيارة الموقع الرسمي'}</span><ExternalLink size={13} />
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-                <section style={{ marginBottom: '48px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', paddingBottom: '16px', borderBottom: '1px solid #eaeaea' }}>
-                    <GraduationCap size={22} strokeWidth={1.5} color="#111" />
-                    <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#111', margin: 0 }}>الجامعات الموصى بها</h2>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {results.universities && results.universities.map((u, i) => (
-                      <div key={i} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '18px', padding: '28px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                          <div style={{ flex: 1, minWidth: '200px' }}>
-                            <h3 style={{ fontSize: '19px', fontWeight: '500', color: '#111', marginBottom: '4px', marginTop: 0 }}>{u.nameAr}</h3>
-                            <p style={{ fontSize: '13px', color: '#888', margin: 0, direction: 'ltr', textAlign: 'right', fontWeight: '300' }}>{u.nameEn}</p>
+                {results.universities && results.universities.length > 0 && (
+                  <section style={{ marginBottom: '64px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', paddingBottom: '16px', borderBottom: '1px solid #eaeaea' }}>
+                      <GraduationCap size={22} strokeWidth={1.5} color="#111" />
+                      <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#111', margin: 0 }}>الجامعات الموصى بها</h2>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {results.universities.map((u, i) => (
+                        <div key={i} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '18px', padding: '28px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                            <div style={{ flex: 1, minWidth: '200px' }}>
+                              <h3 style={{ fontSize: '19px', fontWeight: '500', color: '#111', marginBottom: '4px', marginTop: 0 }}>{u.nameAr}</h3>
+                              <p style={{ fontSize: '13px', color: '#888', margin: 0, direction: 'ltr', textAlign: 'right', fontWeight: '300' }}>{u.nameEn}</p>
+                            </div>
+                            {u.tier && <span style={{ fontSize: '11px', padding: '6px 12px', background: '#111', color: '#fff', borderRadius: '999px' }}>{u.tier}</span>}
                           </div>
-                          {u.tier && <span style={{ fontSize: '11px', padding: '6px 12px', background: '#111', color: '#fff', borderRadius: '999px' }}>{u.tier}</span>}
-                        </div>
-                        <div style={{ display: 'flex', gap: '20px', marginBottom: '16px', flexWrap: 'wrap', color: '#666', fontSize: '13px' }}>
-                          {u.country && <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Globe size={13} /><span>{u.country}</span></div>}
-                        </div>
-                        {u.program && (
-                          <div style={{ marginBottom: '14px' }}>
-                            <span style={{ fontSize: '12px', color: '#999', display: 'block', marginBottom: '4px' }}>البرنامج الأكاديمي</span>
-                            <p style={{ fontSize: '15px', color: '#222', margin: 0 }}>{u.program}</p>
+                          <div style={{ display: 'flex', gap: '20px', marginBottom: '16px', flexWrap: 'wrap', color: '#666', fontSize: '13px' }}>
+                            {u.country && <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Globe size={13} /><span>{u.country}{u.city ? ` - ${u.city}` : ''}</span></div>}
                           </div>
-                        )}
-                        {u.notes && <p style={{ fontSize: '13px', color: '#666', lineHeight: '1.8', marginBottom: '20px' }}>{u.notes}</p>}
-                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                          {u.link && (
-                            <a href={u.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#fff', background: '#111', fontSize: '13px', padding: '10px 18px', borderRadius: '999px' }}>
-                              <span>صفحة البرنامج</span><ExternalLink size={12} />
-                            </a>
+                          {u.fitLevel && (
+                            <div style={{ marginBottom: '14px', padding: '10px 14px', background: '#f7f7f7', borderRadius: '10px', fontSize: '13px', color: '#333' }}>
+                              <strong style={{ fontWeight: '500' }}>{u.fitLevel}</strong>
+                            </div>
                           )}
-                          {u.email && (
-                            <a href={`mailto:${u.email}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#111', background: '#fff', fontSize: '13px', padding: '10px 18px', border: '1px solid #e5e5e5', borderRadius: '999px', direction: 'ltr' }}>
-                              <Mail size={12} /><span>{u.email}</span>
-                            </a>
-                          )}
+                          {u.notes && <p style={{ fontSize: '13px', color: '#666', lineHeight: '1.8', marginBottom: '20px' }}>{u.notes}</p>}
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            {u.link && (
+                              <a href={u.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#fff', background: '#111', fontSize: '13px', padding: '10px 18px', borderRadius: '999px' }}>
+                                <span>البحث عن البرنامج</span><ExternalLink size={12} />
+                              </a>
+                            )}
+                            {u.email && (
+                              <a href={`mailto:${u.email}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#111', background: '#fff', fontSize: '13px', padding: '10px 18px', border: '1px solid #e5e5e5', borderRadius: '999px', direction: 'ltr' }}>
+                                <Mail size={12} /><span>{u.email}</span>
+                              </a>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {results.requirements && results.requirements.length > 0 && (
+                  <section style={{ marginBottom: '64px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', paddingBottom: '16px', borderBottom: '1px solid #eaeaea' }}>
+                      <FileText size={22} strokeWidth={1.5} color="#111" />
+                      <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#111', margin: 0 }}>المتطلبات الرسمية للدراسة بالخارج</h2>
+                    </div>
+                    <div style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '18px', padding: '28px' }}>
+                      <ul style={{ margin: 0, paddingInlineStart: '20px', lineHeight: '2', fontSize: '14px', color: '#444' }}>
+                        {results.requirements.map((r, i) => <li key={i} style={{ marginBottom: '8px' }}>{r}</li>)}
+                      </ul>
+                    </div>
+                  </section>
+                )}
+
+                {results.nextSteps && results.nextSteps.length > 0 && (
+                  <section style={{ marginBottom: '48px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', paddingBottom: '16px', borderBottom: '1px solid #eaeaea' }}>
+                      <ListChecks size={22} strokeWidth={1.5} color="#111" />
+                      <h2 style={{ fontSize: '24px', fontWeight: '400', color: '#111', margin: 0 }}>خطوات عملية للأسابيع القادمة</h2>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {results.nextSteps.map((s, i) => (
+                        <div key={i} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '14px', padding: '20px 24px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                          <div style={{ flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%', background: '#111', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '500' }}>{i + 1}</div>
+                          <p style={{ margin: 0, fontSize: '14px', color: '#333', lineHeight: '1.9', fontWeight: '300' }}>{s}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
                 <div className="no-print" style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', paddingTop: '32px', borderTop: '1px solid #eaeaea' }}>
                   <button onClick={handlePrint} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#111', color: '#fff', border: 'none', padding: '14px 28px', fontSize: '14px', fontFamily: 'inherit', borderRadius: '999px', cursor: 'pointer' }}>
