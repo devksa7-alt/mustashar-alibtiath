@@ -18,6 +18,26 @@ const MF_LABELS = {
   saudiCommunity: { large: 'مجتمع سعودي كبير', medium: 'مجتمع سعودي متوسط', small: 'مجتمع سعودي صغير' },
   prayerRoom: { yes: 'غرفة صلاة متوفرة', no: 'لا توجد غرفة صلاة', unknown: 'غير معلوم' }
 };
+const BUDGET_LABELS = {
+  scholarship_only: 'ابتعاث حكومي',
+  scholarship_preferred: 'أفضل الابتعاث',
+  self_funded: 'تمويل ذاتي',
+  undecided: 'لم أحدد'
+};
+function getWeatherColor(val) {
+  if (!val) return 'var(--ink-faint)';
+  if (val === 'hot' || (typeof val === 'string' && val.includes('حار'))) return '#c0392b';
+  if (val === 'cold' || (typeof val === 'string' && val.includes('بارد'))) return '#2471a3';
+  if (val === 'moderate' || (typeof val === 'string' && val.includes('معتدل'))) return '#b07820';
+  return 'var(--ink-faint)';
+}
+function getSafetyColor(val) {
+  if (!val) return 'var(--ink-faint)';
+  if (val === 'very_safe' || (typeof val === 'string' && val.includes('جداً'))) return '#1e8449';
+  if (val === 'safe' || (typeof val === 'string' && val.includes('آمن'))) return '#27ae60';
+  if (val === 'moderate' || (typeof val === 'string' && val.includes('معتدل'))) return '#b07820';
+  return 'var(--ink-faint)';
+}
 
 // ═══════════════════════════════════════════════════════════════
 // DECORATIVE COMPONENTS
@@ -37,15 +57,31 @@ function TopoLines({ opacity = 0.06 }) {
   );
 }
 
-function Compass({ size = 96 }) {
+function Compass({ size = 96, trackMouse = false }) {
   const c = size / 2;
+  const [needleAngle, setNeedleAngle] = useState(0);
+  const svgRef = useRef(null);
+  useEffect(() => {
+    if (!trackMouse) return;
+    const onMove = (e) => {
+      if (!svgRef.current) return;
+      const rect = svgRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      setNeedleAngle(Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI + 90);
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, [trackMouse]);
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+    <svg ref={svgRef} width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
       <circle cx={c} cy={c} r={c - 2} fill="none" stroke="var(--ink)" strokeWidth="0.8" />
       <circle cx={c} cy={c} r={c - 12} fill="none" stroke="var(--ink)" strokeWidth="0.4" />
       <circle cx={c} cy={c} r={3} fill="var(--ink)" />
-      <polygon points={`${c},${c-(c-6)} ${c-6},${c} ${c},${c+4} ${c+6},${c}`} fill="var(--accent)" />
-      <polygon points={`${c},${c+(c-6)} ${c-4},${c} ${c},${c-4} ${c+4},${c}`} fill="none" stroke="var(--ink)" strokeWidth="0.8" />
+      <g transform={`rotate(${needleAngle}, ${c}, ${c})`}>
+        <polygon points={`${c},${c-(c-6)} ${c-6},${c} ${c},${c+4} ${c+6},${c}`} fill="var(--accent)" />
+        <polygon points={`${c},${c+(c-6)} ${c-4},${c} ${c},${c-4} ${c+4},${c}`} fill="none" stroke="var(--ink)" strokeWidth="0.8" />
+      </g>
       {Array.from({ length: 24 }).map((_, i) => {
         const a = (i / 24) * Math.PI * 2;
         const r1 = c - 2, r2 = c - (i % 6 === 0 ? 10 : 6);
@@ -245,7 +281,7 @@ function Hero({ onStart }) {
               <span>ابدأ الاستشارة</span>
               <span style={{ fontFamily: 'var(--f-display)', fontSize: '22px', fontStyle: 'italic' }}>→</span>
             </HardButton>
-            <a href="#method" style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '18px', color: 'var(--ink-soft)', borderBottom: '1px solid var(--hairline)', paddingBottom: '4px' }}>read the method</a>
+            <a href="#method" style={{ fontFamily: 'var(--f-arabic)', fontSize: '15px', color: 'var(--ink-soft)', borderBottom: '1px solid var(--hairline)', paddingBottom: '4px' }}>اقرأ الطريقة</a>
           </div>
           <div style={{ marginTop: '56px', display: 'flex', gap: '32px', paddingTop: '20px', borderTop: '1px solid var(--hairline)' }}>
             {[{ n: '12', l: 'أسئلة', en: 'questions' }, { n: "3'", l: 'دقائق', en: 'minutes' }, { n: '8', l: 'وجهات', en: 'destinations' }].map((s, i) => (
@@ -259,14 +295,14 @@ function Hero({ onStart }) {
         </div>
 
         <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '-8px', left: '-8px' }}><Compass size={88} /></div>
+          <div style={{ position: 'absolute', top: '-8px', left: '-8px' }}><Compass size={88} trackMouse /></div>
           <h1 style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: 'clamp(96px, 13vw, 200px)', lineHeight: 0.92, margin: 0, fontWeight: 400, letterSpacing: '-0.005em', textAlign: 'right' }}>
             ابتَعِث<br />بثقة.
           </h1>
           <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--rule)', display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '20px', alignItems: 'baseline' }}>
-            <span style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '22px', color: 'var(--accent)' }}>est.</span>
-            <span style={{ fontFamily: 'var(--f-display)', fontSize: '22px', color: 'var(--ink-soft)', fontStyle: 'italic', borderBottom: '1px dotted var(--hairline)', paddingBottom: '6px' }}>
-              a quiet companion for the loud question of <em>where next?</em>
+            <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '16px', color: 'var(--accent)', fontWeight: 500 }}>تأسس</span>
+            <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '18px', color: 'var(--ink-soft)', borderBottom: '1px dotted var(--hairline)', paddingBottom: '6px' }}>
+              رفيقك الهادئ في السؤال الأكبر — <span style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '20px' }}>إلى أين؟</span>
             </span>
             <span style={{ ...edMono, color: 'var(--ink-faint)' }}>2026</span>
           </div>
@@ -332,15 +368,15 @@ function ProgramBoard({ programFilter, setProgramFilter }) {
   return (
     <section id="programs" style={{ maxWidth: 1280, margin: '96px auto 0', padding: '0 40px' }}>
       <SectionEyebrow n="II" en="GOVT. SCHOLARSHIPS" ar="برامج الابتعاث" />
-      <p style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '16px', color: 'var(--ink-soft)', marginTop: '-14px', marginBottom: '28px' }}>
-        ◆ Dates are approximate based on previous cycles — verify on official websites.
+      <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', color: 'var(--ink-soft)', marginTop: '-14px', marginBottom: '28px' }}>
+        ◆ المواعيد تقريبية بناءً على الدورات السابقة — تحقق من المواقع الرسمية.
       </p>
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: 0, marginBottom: '32px', borderBottom: '1px solid var(--hairline)' }}>
         {LEVEL_FILTERS.map(f => (
           <button key={f.value} onClick={() => setProgramFilter(f.value)}
-            style={{ padding: '12px 24px', background: 'transparent', border: 'none', borderBottom: programFilter === f.value ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'var(--f-arabic)', fontSize: '14px', color: programFilter === f.value ? 'var(--ink)' : 'var(--ink-faint)', cursor: 'pointer', fontWeight: programFilter === f.value ? 500 : 400, transition: 'all .2s' }}>
+            style={{ padding: '12px 24px', background: 'transparent', border: 'none', outline: 'none', borderBottom: programFilter === f.value ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'var(--f-arabic)', fontSize: '15px', color: programFilter === f.value ? 'var(--ink)' : 'var(--ink-faint)', cursor: 'pointer', fontWeight: programFilter === f.value ? 500 : 400, transition: 'all .2s' }}>
             {f.label}
           </button>
         ))}
@@ -367,7 +403,7 @@ function ProgramBoard({ programFilter, setProgramFilter }) {
               <h3 style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '28px', lineHeight: 1.2, margin: '0 0 8px', fontWeight: 400 }}>{prog.name}</h3>
               <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
                 {(prog.levels.includes('all') ? ['all'] : prog.levels).map(lv => (
-                  <span key={lv} style={{ ...edMono, padding: '3px 8px', border: '1px solid var(--hairline)', color: 'var(--ink-soft)' }}>{LEVEL_DISPLAY[lv]}</span>
+                  <span key={lv} style={{ fontFamily: 'var(--f-arabic)', fontSize: '13px', fontWeight: 500, padding: '4px 10px', border: '1px solid var(--hairline)', color: 'var(--ink-soft)' }}>{LEVEL_DISPLAY[lv]}</span>
                 ))}
               </div>
               <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', lineHeight: 2, color: 'var(--ink-soft)', margin: '0 0 14px' }}>{prog.description}</p>
@@ -501,7 +537,7 @@ function UniversityExplorer({ universities, loading: uniLoading }) {
       <div style={{ display: 'flex', gap: 0, marginBottom: '24px', borderBottom: '1px solid var(--hairline)', overflowX: 'auto' }}>
         {UNI_FIELD_TABS.map(f => (
           <button key={f.value} onClick={() => { setFieldFilter(f.value); setShowCount(12); }}
-            style={{ padding: '10px 20px', background: 'transparent', border: 'none', borderBottom: fieldFilter === f.value ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'var(--f-arabic)', fontSize: '13px', color: fieldFilter === f.value ? 'var(--ink)' : 'var(--ink-faint)', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .2s' }}>
+            style={{ padding: '10px 20px', background: 'transparent', border: 'none', outline: 'none', borderBottom: fieldFilter === f.value ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'var(--f-arabic)', fontSize: '14px', color: fieldFilter === f.value ? 'var(--ink)' : 'var(--ink-faint)', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .2s' }}>
             {f.label}
           </button>
         ))}
@@ -535,15 +571,25 @@ function UniversityExplorer({ universities, loading: uniLoading }) {
                     {TIER_LABELS[u.tier] || `TIER ${u.tier}`}
                   </span>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {WEATHER_LABELS[u.weather] && <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', color: 'var(--ink-faint)' }}>🌡 {WEATHER_LABELS[u.weather]}</span>}
-                    {SAFETY_LABELS[u.safety] && <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', color: 'var(--ink-faint)' }}>🛡 {SAFETY_LABELS[u.safety]}</span>}
+                    {WEATHER_LABELS[u.weather] && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--f-arabic)', fontSize: '12px', color: getWeatherColor(u.weather) }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: getWeatherColor(u.weather), flexShrink: 0 }} />
+                        {WEATHER_LABELS[u.weather]}
+                      </span>
+                    )}
+                    {SAFETY_LABELS[u.safety] && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--f-arabic)', fontSize: '12px', color: getSafetyColor(u.safety) }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: getSafetyColor(u.safety), flexShrink: 0 }} />
+                        {SAFETY_LABELS[u.safety]}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div>
                   {mfLabels.length > 0 && (
                     <button onClick={() => setExpandedUni(isExpanded ? null : i)}
                       style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '14px', color: 'var(--accent)', direction: 'ltr' }}>
-                      {isExpanded ? '▾ less' : '▸ Muslim info'}
+                      {isExpanded ? '▾ أقل' : '▸ بيئة إسلامية'}
                     </button>
                   )}
                 </div>
@@ -551,7 +597,7 @@ function UniversityExplorer({ universities, loading: uniLoading }) {
               {/* Fields tags */}
               <div style={{ display: 'flex', gap: '6px', marginTop: '8px', marginInlineStart: '70px', flexWrap: 'wrap' }}>
                 {u.fields.filter(f => f !== 'all').slice(0, 5).map(f => (
-                  <span key={f} style={{ ...edMono, padding: '2px 6px', background: 'var(--paper-2)', color: 'var(--ink-soft)', fontSize: '9px' }}>
+                  <span key={f} style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', padding: '3px 9px', background: 'var(--paper-2)', color: 'var(--ink-soft)' }}>
                     {FIELD_LABELS[f] || f}
                   </span>
                 ))}
@@ -863,8 +909,11 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             </div>
             <div>
               <div style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '56px', lineHeight: 1, marginBottom: '14px' }}>نُؤلِّف تقريرك.</div>
-              <div style={{ ...edMono, color: 'var(--ink-soft)', direction: 'ltr', fontSize: '12px' }}>
-                ◆ COMPOSING THE REPORT — تأليف التقرير<span style={{ animation: 'ed-blink 1s steps(1) infinite' }}>_</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <span style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr', fontSize: '11px' }}>◆ COMPOSING THE REPORT</span>
+                <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '18px', color: 'var(--ink-soft)' }}>
+                  تأليف التقرير<span style={{ animation: 'ed-blink 1s steps(1) infinite' }}>_</span>
+                </span>
               </div>
             </div>
           </div>
@@ -930,7 +979,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                     ['GPA', answers?.gpa ? `${answers.gpa} / ${answers.gpaScale}` : '—'],
                     ['الإنجليزية', answers?.englishScore ? `${answers.english?.toUpperCase()} ${answers.englishScore}` : answers?.english],
                     ['الوجهات', answers?.countries?.map(c => COUNTRIES.find(x => x.value === c)?.ar).filter(Boolean).join(' · ')],
-                    ['التمويل', answers?.budget],
+                    ['التمويل', BUDGET_LABELS[answers?.budget] || answers?.budget],
                   ].map(([k, v]) => (
                     <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '12px 0', borderBottom: '1px dotted var(--hairline)' }}>
                       <dt style={{ color: 'var(--ink-soft)', fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '15px' }}>{k}</dt>
@@ -1001,13 +1050,23 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                           {u.tier && <div style={{ ...edMono, display: 'inline-block', padding: '4px 10px', border: '1px solid var(--rule)', direction: 'ltr', marginBottom: '8px' }}>{u.tier}</div>}
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '6px' }}>
                             {u.fitLevel && <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', color: 'var(--ink-soft)' }}><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', marginInlineEnd: '6px' }} />{u.fitLevel}</span>}
-                            {u.weather && <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', color: 'var(--ink-faint)' }}>🌡 {u.weather}</span>}
-                            {u.safety && <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', color: 'var(--ink-faint)' }}>🛡 {u.safety}</span>}
+                            {u.weather && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--f-arabic)', fontSize: '12px', color: getWeatherColor(u.weather) }}>
+                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: getWeatherColor(u.weather), flexShrink: 0 }} />
+                                {u.weather}
+                              </span>
+                            )}
+                            {u.safety && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--f-arabic)', fontSize: '12px', color: getSafetyColor(u.safety) }}>
+                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: getSafetyColor(u.safety), flexShrink: 0 }} />
+                                {u.safety}
+                              </span>
+                            )}
                           </div>
                           {u.muslimFriendly?.length > 0 && (
                             <button onClick={() => setExpandedUni(isExpanded ? null : i)}
                               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '13px', color: 'var(--accent)', direction: 'ltr' }}>
-                              {isExpanded ? '▾ less' : '▸ Muslim info'}
+                              {isExpanded ? '▾ أقل' : '▸ بيئة إسلامية'}
                             </button>
                           )}
                           {isExpanded && u.muslimFriendly?.length > 0 && (
