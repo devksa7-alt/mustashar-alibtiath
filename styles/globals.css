@@ -1,3 +1,42 @@
-* { box-sizing: border-box; }
-html, body { padding: 0; margin: 0; }
+/* Editorial Atlas — Design System */
+
+:root {
+  --paper: #f4efe6;
+  --paper-2: #ebe3d2;
+  --ink: #14233b;
+  --ink-soft: rgba(20, 35, 59, 0.72);
+  --ink-faint: rgba(20, 35, 59, 0.42);
+  --rule: #14233b;
+  --hairline: rgba(20, 35, 59, 0.18);
+  --accent: #b6873a;
+  --accent-soft: #d6a85a;
+
+  --f-display: 'Cormorant Garamond', 'Tajawal', serif;
+  --f-arabic: 'Tajawal', 'IBM Plex Sans Arabic', sans-serif;
+  --f-arabic-disp: 'Lalezar', 'Tajawal', sans-serif;
+  --f-body: 'Tajawal', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --f-num: 'Cormorant Garamond', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; overflow-x: hidden; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+button { font-family: inherit; }
+::selection { background: var(--accent); color: var(--paper); }
+
+@keyframes ed-spin { to { transform: rotate(360deg); } }
+@keyframes ed-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+}

@@ -665,6 +665,17 @@ async function callAI(prompt) {
 
 // ============ MAIN HANDLER ============
 export default async function handler(req, res) {
+  // GET: return university database for the explorer
+  if (req.method === 'GET') {
+    const list = UNIVERSITIES.map(u => ({
+      nameAr: u.nameAr, nameEn: u.nameEn, country: u.country, city: u.city,
+      tier: u.tier, fields: u.fields, weather: u.weather, safety: u.safety,
+      muslimFriendly: u.muslimFriendly
+    }));
+    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=3600');
+    return res.status(200).json({ universities: list });
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
