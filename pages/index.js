@@ -34,6 +34,165 @@ const GOALS_OPTIONS = [
   { value: 'exploring', label: 'لا زلت أستكشف خياراتي' },
 ];
 
+// ============ PROGRAM SCHEDULE DATA ============
+// Months: 1=Jan ... 12=Dec. crossYear=true when window spans year boundary.
+const PROGRAM_SCHEDULE = [
+  {
+    id: 'rawwad',
+    name: 'مسار الرواد',
+    description: 'أفضل 30 جامعة عالمياً • يغطي الرسوم والإقامة والتأمين والسفر',
+    levels: ['bachelor', 'master'],
+    openMonth: 2, closeMonth: 4,
+    openLabel: 'فبراير', closeLabel: 'أبريل',
+    link: 'https://sites.moe.gov.sa/scholarship-program/paths/path-arruaad/',
+  },
+  {
+    id: 'tamayoz',
+    name: 'مسار التميز',
+    description: 'أفضل 50 جامعة عالمياً • تخصصات ذات أولوية لرؤية 2030',
+    levels: ['bachelor', 'master'],
+    openMonth: 2, closeMonth: 4,
+    openLabel: 'فبراير', closeLabel: 'أبريل',
+    link: 'https://moe.gov.sa/ar/knowledgecenter/eservices/Pages/ksp.aspx',
+  },
+  {
+    id: 'imdad',
+    name: 'مسار إمداد',
+    description: 'أفضل 200 جامعة • مجالات هندسة وطب وأعمال وتقنية وعلوم',
+    levels: ['bachelor', 'master'],
+    openMonth: 2, closeMonth: 4,
+    openLabel: 'فبراير', closeLabel: 'أبريل',
+    link: 'https://sites.moe.gov.sa/scholarship-program/paths/path-emdad/',
+  },
+  {
+    id: 'waed',
+    name: 'مسار واعد',
+    description: 'مع شركات سعودية كبرى • يضمن التوظيف بعد التخرج',
+    levels: ['highschool'],
+    openMonth: 1, closeMonth: 3,
+    openLabel: 'يناير', closeLabel: 'مارس',
+    link: 'https://sites.moe.gov.sa/scholarship-program/paths/path-waaid/',
+  },
+  {
+    id: 'aramco',
+    name: 'برنامج أرامكو CDPNE',
+    description: 'لطلاب الثانوية العلمية • يضمن التوظيف في أرامكو',
+    levels: ['highschool'],
+    openMonth: 9, closeMonth: 11,
+    openLabel: 'سبتمبر', closeLabel: 'نوفمبر',
+    link: 'https://www.aramco.com/en/careers/for-saudi-applicants/student-opportunities/college-degree-program',
+  },
+  {
+    id: 'sabic',
+    name: 'منح سابك',
+    description: 'للتخصصات الهندسية والكيميائية • معدل 90% فأعلى',
+    levels: ['highschool'],
+    openMonth: 10, closeMonth: 12,
+    openLabel: 'أكتوبر', closeLabel: 'ديسمبر',
+    link: 'https://www.sabic.com/en/careers/middle-east-africa/students-and-fresh-graduates',
+  },
+  {
+    id: 'kgsp',
+    name: 'برنامج كاوست KGSP',
+    description: 'تخصصات STEM عبر موهبة • مع الماجستير في كاوست لاحقاً',
+    levels: ['highschool'],
+    openMonth: 10, closeMonth: 1,
+    crossYear: true,
+    openLabel: 'أكتوبر', closeLabel: 'يناير',
+    link: 'https://kgsp.kaust.edu.sa/',
+  },
+  {
+    id: 'health',
+    name: 'الابتعاث الصحي',
+    description: 'وزارة الصحة • للتخصصات الطبية والصحية فقط',
+    levels: ['bachelor', 'master', 'phd'],
+    openMonth: 1, closeMonth: 3,
+    openLabel: 'يناير', closeLabel: 'مارس',
+    link: 'https://www.moh.gov.sa',
+  },
+  {
+    id: 'misk',
+    name: 'زمالة مسك',
+    description: 'برنامج قيادي لمدة 6 أشهر • تطوير ريادي وقيادي',
+    levels: ['bachelor', 'master'],
+    openMonth: 4, closeMonth: 6,
+    openLabel: 'أبريل', closeLabel: 'يونيو',
+    link: 'https://misk.org.sa',
+  },
+  {
+    id: 'faculty',
+    name: 'ابتعاث هيئة التدريس',
+    description: 'بترشيح من الجامعة السعودية • للعودة للتدريس فيها',
+    levels: ['master', 'phd'],
+    varies: true,
+    openLabel: 'يتفاوت حسب الجامعة',
+    link: 'https://moe.gov.sa',
+  },
+  {
+    id: 'sacm',
+    name: 'الملحقية الثقافية SACM',
+    description: 'تسجيل مستمر • رعاية جميع المبتعثين السعوديين في الخارج',
+    levels: ['all'],
+    ongoing: true,
+    openLabel: 'مفتوح على مدار السنة',
+    link: 'https://www.sacm.org/',
+  },
+];
+
+const MONTH_NAMES = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+function getProgramStatus(prog) {
+  if (prog.ongoing) return 'ongoing';
+  if (prog.varies) return 'varies';
+  const m = new Date().getMonth() + 1;
+  const { openMonth, closeMonth, crossYear } = prog;
+  let isOpen;
+  if (crossYear) {
+    isOpen = m >= openMonth || m <= closeMonth;
+  } else {
+    isOpen = m >= openMonth && m <= closeMonth;
+  }
+  if (!isOpen) return 'closed';
+  return m === closeMonth ? 'closing' : 'open';
+}
+
+function getNextOpenText(prog) {
+  if (!prog.openMonth) return null;
+  const m = new Date().getMonth() + 1;
+  let diff = prog.openMonth - m;
+  if (diff <= 0) diff += 12;
+  if (diff === 1) return 'الشهر القادم';
+  if (diff === 2) return 'خلال شهرين';
+  return `في ${MONTH_NAMES[prog.openMonth]}`;
+}
+
+function getStatusStyle(status) {
+  switch (status) {
+    case 'open':    return { label: 'مفتوح الآن', color: '#166534', bg: '#dcfce7', dot: '#16a34a' };
+    case 'closing': return { label: 'ينتهي هذا الشهر', color: '#92400e', bg: '#fef3c7', dot: '#d97706' };
+    case 'closed':  return { label: 'مغلق', color: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' };
+    case 'varies':  return { label: 'يتفاوت', color: '#1e40af', bg: '#dbeafe', dot: '#3b82f6' };
+    case 'ongoing': return { label: 'مستمر', color: '#166534', bg: '#dcfce7', dot: '#16a34a' };
+    default:        return { label: '', color: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' };
+  }
+}
+
+const LEVEL_FILTERS = [
+  { value: 'all',        label: 'الكل' },
+  { value: 'highschool', label: 'ثانوية' },
+  { value: 'bachelor',   label: 'بكالوريوس' },
+  { value: 'master',     label: 'ماجستير' },
+  { value: 'phd',        label: 'دكتوراه وأخرى' },
+];
+
+const LEVEL_DISPLAY = {
+  highschool: 'ثانوية',
+  bachelor:   'بكالوريوس',
+  master:     'ماجستير',
+  phd:        'دكتوراه',
+  all:        'جميع المراحل',
+};
+
 export default function Home() {
   const [screen, setScreen] = useState('landing');
   const [step, setStep] = useState(0);
@@ -47,6 +206,7 @@ export default function Home() {
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
   const [expandedUni, setExpandedUni] = useState(null);
+  const [programFilter, setProgramFilter] = useState('all');
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -223,6 +383,12 @@ export default function Home() {
   });
 
   // ============ LANDING SCREEN ============
+  const filteredPrograms = PROGRAM_SCHEDULE.filter(p => {
+    if (programFilter === 'all') return true;
+    if (programFilter === 'phd') return p.levels.includes('phd') || p.levels.includes('all');
+    return p.levels.includes(programFilter) || p.levels.includes('all');
+  });
+
   if (screen === 'landing') return (
     <div style={base}>
       <Head>
@@ -231,16 +397,93 @@ export default function Home() {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '80px 32px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 16px', background: '#f0f0f0', borderRadius: '999px', marginBottom: '48px', fontSize: '13px', color: '#555' }}>
+
+      {/* Hero */}
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '80px 32px 56px', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 16px', background: '#f0f0f0', borderRadius: '999px', marginBottom: '40px', fontSize: '13px', color: '#555' }}>
           <Sparkles size={14} /><span>مدعوم بالذكاء الاصطناعي</span>
         </div>
-        <h1 style={{ fontSize: '52px', fontWeight: '300', letterSpacing: '-1px', marginBottom: '24px', lineHeight: '1.2', color: '#111' }}>مستشار الابتعاث</h1>
-        <p style={{ fontSize: '18px', color: '#555', lineHeight: '2', marginBottom: '16px', fontWeight: '300' }}>رفيقك الذكي في رحلة الدراسة خارج المملكة</p>
-        <p style={{ fontSize: '15px', color: '#777', lineHeight: '2', marginBottom: '64px', fontWeight: '300', maxWidth: '500px', margin: '0 auto 64px' }}>
+        <h1 style={{ fontSize: '52px', fontWeight: '300', letterSpacing: '-1px', marginBottom: '20px', lineHeight: '1.2', color: '#111' }}>مستشار الابتعاث</h1>
+        <p style={{ fontSize: '18px', color: '#555', lineHeight: '2', marginBottom: '12px', fontWeight: '300' }}>رفيقك الذكي في رحلة الدراسة خارج المملكة</p>
+        <p style={{ fontSize: '15px', color: '#777', lineHeight: '2', marginBottom: '40px', fontWeight: '300', maxWidth: '500px', margin: '0 auto 40px' }}>
           أجب عن بضعة أسئلة، وسنرشح لك البرامج الحكومية السعودية المناسبة والجامعات العالمية التي تتوافق مع تخصصك وطموحاتك
         </p>
         <button onClick={() => setScreen('questionnaire')} style={{ background: '#111', color: '#fff', border: 'none', padding: '18px 48px', fontSize: '16px', fontFamily: 'inherit', borderRadius: '999px', cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>ابدأ الآن</button>
+      </div>
+
+      {/* Program Status Section */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px 80px' }}>
+        <div style={{ borderTop: '1px solid #eaeaea', paddingTop: '56px' }}>
+
+          {/* Section header */}
+          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: '400', color: '#111', marginBottom: '8px' }}>حالة برامج الابتعاث</h2>
+            <p style={{ fontSize: '13px', color: '#999', fontWeight: '300' }}>التواريخ تقريبية استناداً لدورات الأعوام السابقة • تحقق من المواقع الرسمية للتأكيد</p>
+          </div>
+
+          {/* Filter tabs */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
+            {LEVEL_FILTERS.map(f => (
+              <button key={f.value} onClick={() => setProgramFilter(f.value)}
+                style={{ padding: '9px 20px', borderRadius: '999px', border: `1px solid ${programFilter === f.value ? '#111' : '#e5e5e5'}`, background: programFilter === f.value ? '#111' : '#fff', color: programFilter === f.value ? '#fff' : '#555', fontSize: '14px', fontFamily: 'inherit', cursor: 'pointer', transition: 'all 0.15s' }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Program cards grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '14px' }}>
+            {filteredPrograms.map(prog => {
+              const status = getProgramStatus(prog);
+              const style = getStatusStyle(status);
+              const nextOpen = status === 'closed' ? getNextOpenText(prog) : null;
+              return (
+                <div key={prog.id} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                  {/* Top row: name + status badge */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#111', margin: 0, lineHeight: '1.4' }}>{prog.name}</h3>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', background: style.bg, color: style.color, borderRadius: '999px', fontSize: '12px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: style.dot, display: 'inline-block' }} />
+                      {style.label}
+                    </span>
+                  </div>
+
+                  {/* Level tags */}
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {(prog.levels.includes('all') ? ['all'] : prog.levels).map(lv => (
+                      <span key={lv} style={{ fontSize: '11px', padding: '3px 9px', background: '#f7f7f7', color: '#555', borderRadius: '999px' }}>
+                        {LEVEL_DISPLAY[lv] || lv}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Description */}
+                  <p style={{ fontSize: '13px', color: '#666', margin: 0, lineHeight: '1.8', fontWeight: '300' }}>{prog.description}</p>
+
+                  {/* Date info */}
+                  <div style={{ fontSize: '12px', color: '#888', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    {!prog.ongoing && !prog.varies && (
+                      <span>🗓 يفتح الباب: {prog.openLabel} • يُغلق: {prog.closeLabel}</span>
+                    )}
+                    {prog.varies && <span>🗓 {prog.openLabel}</span>}
+                    {prog.ongoing && <span>🗓 {prog.openLabel}</span>}
+                    {nextOpen && (
+                      <span style={{ color: '#111', fontWeight: '500' }}>التالي: يفتح {nextOpen} تقريباً</span>
+                    )}
+                  </div>
+
+                  {/* Link */}
+                  <a href={prog.link} target="_blank" rel="noopener noreferrer"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#111', fontSize: '12px', fontWeight: '500', padding: '8px 14px', border: '1px solid #e5e5e5', borderRadius: '999px', textDecoration: 'none', alignSelf: 'flex-start', marginTop: 'auto' }}>
+                    <span>الموقع الرسمي</span><ExternalLink size={11} />
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
       </div>
     </div>
   );
