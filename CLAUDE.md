@@ -28,12 +28,13 @@ UPSTASH_REDIS_REST_TOKEN
 
 ```
 pages/
-  index.js       — Entire frontend (1300+ lines, all components in one file)
+  index.js       — Entire frontend (1500+ lines, all components in one file)
   _app.js        — Google Fonts preconnect + favicon link
+  _document.js   — Custom Document: sets <html lang="ar" dir="rtl">
 api/
   recommend.js   — Vercel serverless function (not a Next.js pages/api route)
 styles/
-  globals.css    — CSS variables + global resets only. No component styles.
+  globals.css    — CSS variables, global resets, focus-visible rings, mobile optimizations
 public/
   favicon.svg    — SVG compass favicon
 ```
@@ -56,6 +57,8 @@ Single-file React app. **All styling is inline styles** — no CSS classes, no T
 
 **Compass component** accepts `trackMouse` prop. When true, attaches a global `mousemove` listener and rotates the needle SVG `<g>` to point toward the cursor. Used only in the hero section.
 
+**Responsive** — `useWindowSize()` hook at the top of the file provides `width`/`height`. The main `Home` component computes `isMobile = winWidth < 768` and passes it as a prop to every component. All grid layouts conditionally switch between desktop multi-column and mobile single-column. On mobile: Nav hides links, Hero stacks vertically, country picker becomes horizontal scroll tabs, university rows collapse tier/weather columns inline, questionnaire uses single-column option grids.
+
 ### Backend (`api/recommend.js`)
 
 Vercel serverless function with two routes:
@@ -63,13 +66,16 @@ Vercel serverless function with two routes:
 **GET** — Returns the full `UNIVERSITIES` array (sans email, minGpa, score fields) for the explorer. Cached at the CDN level for 24h (`Cache-Control: public, s-maxage=86400`).
 
 **POST** — Main recommendation engine:
-1. Rate-limit check: 6 requests/day per IP via Upstash Ratelimit
-2. Redis cache lookup by `profileKey(answers)` — SHA-256 hash of normalized answers, stored 30 days
-3. If cache miss: `filterPrograms()` + `filterUniversities()` run deterministic matching, then 3 parallel AI calls fire:
+1. Rate-limit check: 6 requests/day per IP via Upstash Ratelimit (uses `x-real-ip` first, then last `x-forwarded-for` entry)
+2. Input sanitization: `sanitizeText()` strips newlines and enforces 300-char max on free-text fields; `wrapUserInput()` wraps in XML delimiters for prompt injection defense
+3. Redis cache lookup by `profileKey(answers)` — full SHA-256 hash (prefix `rec4:`), cached 7 days
+4. If cache miss: `filterPrograms()` + `filterUniversities()` run deterministic matching, then 3 parallel AI calls fire:
    - Call 1: profile analysis paragraph + program fit reasons
    - Call 2: personalized university notes
    - Call 3: 6-step action plan
-4. Result assembled and stored in Redis
+5. Result assembled and stored in Redis
+
+**CORS** — restricted to `https://mustashar-alibtiath.vercel.app` via `setCorsHeaders()`. OPTIONS preflight returns 204.
 
 **University scoring** — `filterUniversities()` scores candidates by field match count, GPA delta from `minGpa`, and weather preference, then selects up to 10 with diversity constraints (max 4 per country, at least one Tier 1 and one Tier 3).
 
@@ -101,4 +107,8 @@ Vercel serverless function with two routes:
 - `var(--f-mono)` → JetBrains Mono — eyebrow labels, codes, `edMono` style object
 - `var(--f-num)` → Cormorant Garamond — lining numerals, `edNum` style object
 
-The page is `dir="rtl"` on all screens. LTR elements (English text, numbers, codes) use `direction: 'ltr'` inline.
+The page is `dir="rtl"` on all screens (set in `_document.js` on `<html>` element). LTR elements (English text, numbers, codes) use `direction: 'ltr'` inline.
+
+**Focus rings** — `globals.css` defines `:focus-visible` outlines using `var(--accent)` for all interactive elements. Inline `outline: 'none'` was removed to restore keyboard accessibility.
+
+**Mobile** — `globals.css` includes `@media (max-width: 768px)` for `-webkit-tap-highlight-color: transparent` and `font-size: 16px` on inputs to prevent iOS zoom.
