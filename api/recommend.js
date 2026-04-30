@@ -470,7 +470,6 @@ function filterUniversities(answers) {
     tier: tierLabel(u.tier),
     tierNum: u.tier,
     fitLevel: fitLabel(studentGpa4, u.minGpa),
-    email: u.email,
     link: `https://www.google.com/search?q=${encodeURIComponent(u.nameEn + ' ' + (answers.field || '') + ' ' + (answers.degreeLevel === 'master' ? 'graduate' : answers.degreeLevel === 'phd' ? 'PhD' : 'admission'))}`,
     fields: u.fields,
     minGpaRequired: u.minGpa,
@@ -524,7 +523,7 @@ function profileKey(answers) {
   const passionsStr = Array.isArray(answers.passions) ? answers.passions.sort().join(',') : (answers.passions || '');
   const goalsStr = Array.isArray(answers.goals) ? answers.goals.sort().join(',') : (answers.goals || '');
   const key = `${answers.academicLevel}|${Math.floor(parseFloat(answers.gpa || 0) * 2) / 2}|${answers.gpaScale}|${answers.english}|${(answers.field || '').toLowerCase().trim().substring(0, 30)}|${answers.degreeLevel}|${countriesStr.substring(0, 50)}|${answers.budget}|${answers.gender}|${answers.mahram || ''}|${answers.weatherPreference || ''}|${passionsStr.substring(0, 60)}|${goalsStr.substring(0, 60)}`;
-  return 'rec3:' + crypto.createHash('sha256').update(key).digest('hex').substring(0, 16);
+  return 'rec4:' + crypto.createHash('sha256').update(key).digest('hex');
 }
 
 // ============ AI PROMPTS ============
@@ -537,10 +536,10 @@ function buildProfileAnalysisPrompt(answers, programs, studentGpa4) {
 
 ملف الطالب:
 - المستوى الأكاديمي: ${answers.academicLevel}
-- الجامعة الحالية: ${answers.currentInstitution || 'غير محدد'}
+- الجامعة الحالية: ${wrapUserInput('institution', answers.currentInstitution)}
 - المعدل: ${answers.gpa} من ${answers.gpaScale} (يعادل ${studentGpa4.toFixed(2)} من 4.0)
-- الإنجليزية: ${answers.english}${answers.englishScore ? ' - الدرجة: ' + answers.englishScore : ''}
-- التخصص المرغوب: ${answers.field}
+- الإنجليزية: ${answers.english}${answers.englishScore ? ' - الدرجة: ' + sanitizeText(answers.englishScore, 20) : ''}
+- التخصص المرغوب: ${wrapUserInput('field', answers.field)}
 - الدرجة المطلوبة: ${answers.degreeLevel}
 - الدول المفضلة: ${answers.countriesText || (Array.isArray(answers.countries) ? answers.countries.join(', ') : answers.countries)}
 - خطة التمويل: ${answers.budget}
@@ -577,7 +576,7 @@ function buildUniversityNotesPrompt(answers, universities, studentGpa4) {
   return `أنت مستشار ابتعاث تكتب ملاحظات مخصصة عن الجامعات لطالب سعودي.
 
 ملف الطالب المختصر:
-- التخصص: ${answers.field}
+- التخصص: ${wrapUserInput('field', answers.field)}
 - المعدل: ${studentGpa4.toFixed(2)} من 4.0
 - الدرجة المطلوبة: ${answers.degreeLevel}
 - ما استمتع به: ${passionsText || 'غير محدد'}
@@ -610,9 +609,9 @@ function buildActionPlanPrompt(answers, programs, universities, studentGpa4) {
 
 ملف الطالب:
 - المستوى: ${answers.academicLevel}
-- التخصص: ${answers.field}
+- التخصص: ${wrapUserInput('field', answers.field)}
 - المعدل: ${studentGpa4.toFixed(2)} من 4.0
-- الإنجليزية: ${answers.english}${answers.englishScore ? ' (' + answers.englishScore + ')' : ''}
+- الإنجليزية: ${answers.english}${answers.englishScore ? ' (' + sanitizeText(answers.englishScore, 20) + ')' : ''}
 - الدرجة: ${answers.degreeLevel}
 - التمويل: ${answers.budget}
 
@@ -663,8 +662,38 @@ async function callAI(prompt) {
   return JSON.parse(jsonStr);
 }
 
+// ============ INPUT SANITIZATION ============
+function sanitizeText(str, maxLen = 300) {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/[\r\n\t]/g, ' ').replace(/\s{2,}/g, ' ').trim().substring(0, maxLen);
+}
+
+function wrapUserInput(tag, value) {
+  const clean = sanitizeText(value);
+  return clean ? `<${tag}>${clean}</${tag}>` : 'غير محدد';
+}
+
+// ============ CORS ============
+const ALLOWED_ORIGIN = 'https://mustashar-alibtiath.vercel.app';
+
+function setCorsHeaders(req, res) {
+  const origin = req.headers.origin;
+  if (origin === ALLOWED_ORIGIN) {
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
 // ============ MAIN HANDLER ============
 export default async function handler(req, res) {
+  setCorsHeaders(req, res);
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   // GET: return university database for the explorer
   if (req.method === 'GET') {
     const list = UNIVERSITIES.map(u => ({
@@ -681,19 +710,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
+    const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for']?.split(',').pop()?.trim() || 'unknown';
     const { success } = await ratelimit.limit(ip);
     if (!success) {
       return res.status(429).json({ error: 'لقد تجاوزت الحد اليومي للاستفسارات. حاول مرة أخرى غداً.' });
     }
 
     const answers = req.body;
+    if (!answers || typeof answers !== 'object') {
+      return res.status(400).json({ error: 'بيانات ناقصة' });
+    }
     if (Array.isArray(answers.countries)) {
       answers.countriesText = answers.countriesText || answers.countries.join('، ');
     }
-    if (!answers || !answers.field || !answers.academicLevel) {
+    if (!answers.field || !answers.academicLevel) {
       return res.status(400).json({ error: 'بيانات ناقصة' });
     }
+
+    // Enforce max length on free-text fields
+    if ((answers.field && answers.field.length > 300) || (answers.currentInstitution && answers.currentInstitution.length > 300)) {
+      return res.status(400).json({ error: 'النص طويل جداً. الحد الأقصى 300 حرف.' });
+    }
+
+    // Sanitize free-text inputs
+    answers.field = sanitizeText(answers.field);
+    answers.currentInstitution = sanitizeText(answers.currentInstitution);
+    if (answers.passionsExtra) answers.passionsExtra = sanitizeText(answers.passionsExtra);
+    if (answers.goalsExtra) answers.goalsExtra = sanitizeText(answers.goalsExtra);
+    if (answers.englishScore) answers.englishScore = sanitizeText(answers.englishScore, 20);
 
     const cacheKey = profileKey(answers);
     const cached = await redis.get(cacheKey);
@@ -758,7 +802,7 @@ export default async function handler(req, res) {
       languageWarning
     };
 
-    await redis.set(cacheKey, JSON.stringify(finalResult), { ex: 60 * 60 * 24 * 30 });
+    await redis.set(cacheKey, JSON.stringify(finalResult), { ex: 60 * 60 * 24 * 7 });
 
     return res.status(200).json(finalResult);
   } catch (err) {

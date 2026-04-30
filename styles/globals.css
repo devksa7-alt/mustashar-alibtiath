@@ -35,6 +35,22 @@ button { font-family: inherit; }
 
 @keyframes ed-spin { to { transform: rotate(360deg); } }
 @keyframes ed-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes ed-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Focus rings for keyboard navigation */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  * { -webkit-tap-highlight-color: transparent; }
+  input, button, select, textarea { font-size: 16px; }
+}
 
 @media print {
   .no-print { display: none !important; }
