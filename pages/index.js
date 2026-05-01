@@ -762,7 +762,8 @@ function Footer({ isMobile }) {
       <div style={{ direction: 'ltr', textAlign: 'left', ...edMono, lineHeight: 2.2, color: 'var(--ink-faint)' }}>
         © 2026 Mustashar al-Ibtiath<br />
         Built in Riyadh — Not government<br />
-        Vol. I · Issue 01
+        Vol. I · Issue 01<br />
+        Done by{' '}<a href="https://www.linkedin.com/in/sanad-al-lheani/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Sanad Allheani</a>
       </div>
     </footer>
   );
