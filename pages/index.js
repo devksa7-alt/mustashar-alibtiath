@@ -867,6 +867,24 @@ function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, set
           <span style={{ color: 'var(--ink-soft)', fontSize: '13px' }}>سواء أرفقت السيرة أو لم ترفقها، ستجيب على ١٢ سؤالاً بعد ذلك.</span>
         </p>
 
+        {/* File specs strip — surfaces upload constraints visibly */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 0, border: '1px solid var(--hairline)', marginBottom: '20px' }}>
+          {[
+            { label: 'الصيغة', value: 'PDF فقط' },
+            { label: 'الحد الأقصى', value: '٢ ميجابايت' },
+            { label: 'النوع المطلوب', value: 'نص قابل للقراءة (لا صور ممسوحة)' },
+          ].map((spec, i) => (
+            <div key={spec.label} style={{
+              padding: isMobile ? '12px 14px' : '14px 18px',
+              borderInlineStart: !isMobile && i > 0 ? '1px solid var(--hairline)' : 'none',
+              borderTop: isMobile && i > 0 ? '1px solid var(--hairline)' : 'none',
+            }}>
+              <div style={{ ...edMono, color: 'var(--ink-faint)', marginBottom: '4px' }}>{spec.label}</div>
+              <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', color: 'var(--ink)', fontWeight: 500 }}>{spec.value}</div>
+            </div>
+          ))}
+        </div>
+
         {/* Drop zone or selected file */}
         {!cvFile ? (
           <label
@@ -910,7 +928,7 @@ function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, set
               </svg>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '15px', color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cvFile.name}</div>
-                <div style={{ ...edMono, ...edNum, color: 'var(--ink-faint)', marginTop: '4px', direction: 'ltr' }}>{formatSize(cvFile.size)} · مُرفَق</div>
+                <div style={{ ...edMono, ...edNum, color: 'var(--ink-faint)', marginTop: '4px', direction: 'ltr' }}>{formatSize(cvFile.size)} / 2.0 MB · مُرفَق</div>
               </div>
             </div>
             <button onClick={handleRemove} aria-label="إزالة الملف" style={{ background: 'none', border: '1px solid var(--hairline)', color: 'var(--ink-soft)', width: '32px', height: '32px', cursor: 'pointer', fontSize: '18px', lineHeight: 1, flexShrink: 0 }}>×</button>
@@ -1213,6 +1231,22 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                 <span>صفحة · ٠٠٠١</span>
               </div>
             </div>
+
+            {/* CV Status */}
+            {results.cvStatus && results.cvStatus !== 'none' && (() => {
+              const map = {
+                used:   { color: '#1e8449', text: 'تم دمج سيرتك الذاتية في التحليل والتوصيات.' },
+                empty:  { color: '#b07820', text: 'تم رفع السيرة لكن لم نستخرج منها معلومات كافية. التحليل يعتمد على إجاباتك في الاستبيان فقط. (إن كانت سيرتك ممسوحة كصورة، حاول إعادة إنشائها كملف نصي).' },
+                failed: { color: '#c0392b', text: 'تعذر قراءة ملف السيرة الذاتية. التحليل تم بناءً على إجابات الاستبيان فقط. يمكنك إعادة المحاولة بملف PDF نصي.' }
+              };
+              const info = map[results.cvStatus];
+              if (!info) return null;
+              return (
+                <div style={{ border: '1px solid var(--hairline)', background: 'var(--paper-2)', padding: '14px 18px', marginBottom: '20px', fontFamily: 'var(--f-arabic)', fontSize: '14px', color: 'var(--ink-soft)', borderInlineStart: `3px solid ${info.color}` }}>
+                  ◆ {info.text}
+                </div>
+              );
+            })()}
 
             {/* Language Warning */}
             {results.languageWarning && (
