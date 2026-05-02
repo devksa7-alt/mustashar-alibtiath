@@ -770,6 +770,183 @@ function Footer({ isMobile }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// CV UPLOAD SCREEN
+// ═══════════════════════════════════════════════════════════════
+function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, setCvError, onContinue, onBack, isMobile }) {
+  const [dragOver, setDragOver] = useState(false);
+  const [reading, setReading] = useState(false);
+  const inputRef = useRef(null);
+
+  const MAX_BYTES = 2 * 1024 * 1024; // 2MB raw PDF
+
+  const handleFile = (file) => {
+    setCvError('');
+    if (!file) return;
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      setCvError('الملف يجب أن يكون بصيغة PDF فقط.');
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setCvError('حجم الملف يتجاوز الحد المسموح (٢ ميجا).');
+      return;
+    }
+    setReading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      const base64 = typeof result === 'string' ? result.replace(/^data:application\/pdf;base64,/, '') : '';
+      if (!base64) {
+        setCvError('تعذر قراءة الملف. حاول مرة أخرى.');
+        setReading(false);
+        return;
+      }
+      setCvFile(file);
+      setCvBase64(base64);
+      setReading(false);
+    };
+    reader.onerror = () => {
+      setCvError('تعذر قراءة الملف. حاول مرة أخرى.');
+      setReading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemove = () => {
+    setCvFile(null);
+    setCvBase64('');
+    setCvError('');
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  const formatSize = (bytes) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  return (
+    <div style={{ direction: 'rtl', minHeight: '100vh', position: 'relative' }}>
+      <TopoLines opacity={0.04} />
+      <Head><title>مستشار الابتعاث — ملف الطالب</title></Head>
+
+      {/* Masthead */}
+      <header style={{ borderBottom: '1px solid var(--rule)', background: 'var(--paper)', position: 'sticky', top: 0, zIndex: 40 }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '18px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
+          <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '14px', fontFamily: 'var(--f-display)', fontWeight: 500, fontSize: '26px', direction: 'ltr', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}>
+            <Compass size={28} />
+            <span>Mustashar</span>
+            <span style={{ fontFamily: 'var(--f-arabic-disp)', fontStyle: 'normal', fontSize: '20px', color: 'var(--ink-soft)', marginInlineStart: '4px' }}>· مستشار</span>
+          </button>
+          <div style={{ ...edMono, color: 'var(--ink-soft)', direction: 'ltr' }}>OPTIONAL · PRELUDE</div>
+        </div>
+      </header>
+
+      <main style={{ maxWidth: 720, margin: '0 auto', padding: isMobile ? '32px 16px 48px' : '64px 32px 80px', position: 'relative', zIndex: 1 }}>
+        {/* Eyebrow */}
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '24px', marginBottom: '24px', paddingBottom: '14px', borderBottom: '1px solid var(--hairline)' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: isMobile ? '14px' : '18px' }}>
+            <span style={{ fontFamily: 'var(--f-num)', fontSize: isMobile ? '44px' : '56px', lineHeight: 0.9, color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400 }}>№00</span>
+            <span style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: isMobile ? '26px' : '32px', lineHeight: 1 }}>ملف الطالب</span>
+          </div>
+          <span style={{ ...edMono, color: 'var(--ink-soft)', direction: 'ltr', display: isMobile ? 'none' : 'inline' }}>— THE DOSSIER</span>
+        </div>
+
+        {/* Lede */}
+        <p style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: isMobile ? '18px' : '20px', lineHeight: 1.6, color: 'var(--ink-soft)', margin: '0 0 8px' }}>
+          Attach your CV for a sharper, more personal analysis.
+        </p>
+        <p style={{ fontFamily: 'var(--f-arabic)', fontSize: isMobile ? '15px' : '16px', lineHeight: 1.85, color: 'var(--ink)', margin: '0 0 36px' }}>
+          ارفق سيرتك الذاتية بصيغة PDF ليصبح التحليل أعمق وأقرب إلى ملفك. الخطوة اختيارية، ولن يؤثر تخطيها على جودة التوصيات.
+          <br />
+          <span style={{ color: 'var(--ink-soft)', fontSize: '13px' }}>سواء أرفقت السيرة أو لم ترفقها، ستجيب على ١٢ سؤالاً بعد ذلك.</span>
+        </p>
+
+        {/* Drop zone or selected file */}
+        {!cvFile ? (
+          <label
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+            style={{
+              display: 'block', cursor: 'pointer',
+              border: `1px dashed ${dragOver ? 'var(--accent)' : 'var(--hairline)'}`,
+              background: dragOver ? 'rgba(193, 154, 92, 0.04)' : 'transparent',
+              padding: isMobile ? '36px 20px' : '56px 32px',
+              textAlign: 'center',
+              transition: 'all .2s ease'
+            }}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={(e) => handleFile(e.target.files && e.target.files[0])}
+              style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}
+            />
+            <svg width="42" height="48" viewBox="0 0 42 48" fill="none" style={{ margin: '0 auto 14px', display: 'block' }} aria-hidden="true">
+              <path d="M4 2 H26 L38 14 V46 H4 Z" stroke="var(--ink)" strokeWidth="1.2" fill="none" />
+              <path d="M26 2 V14 H38" stroke="var(--ink)" strokeWidth="1.2" fill="none" />
+              <line x1="11" y1="24" x2="31" y2="24" stroke="var(--ink-soft)" strokeWidth="0.8" />
+              <line x1="11" y1="30" x2="31" y2="30" stroke="var(--ink-soft)" strokeWidth="0.8" />
+              <line x1="11" y1="36" x2="24" y2="36" stroke="var(--ink-soft)" strokeWidth="0.8" />
+            </svg>
+            <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '16px', color: 'var(--ink)', marginBottom: '6px' }}>
+              {reading ? 'جارٍ قراءة الملف…' : 'اسحب ملف PDF هنا أو اضغط للاختيار'}
+            </div>
+            <div style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr' }}>PDF ONLY · MAX 2MB</div>
+          </label>
+        ) : (
+          <div style={{ border: '1px solid var(--rule)', padding: isMobile ? '18px' : '22px 26px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
+              <svg width="28" height="32" viewBox="0 0 42 48" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
+                <path d="M4 2 H26 L38 14 V46 H4 Z" stroke="var(--ink)" strokeWidth="1.2" fill="none" />
+                <path d="M26 2 V14 H38" stroke="var(--ink)" strokeWidth="1.2" fill="none" />
+              </svg>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '15px', color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cvFile.name}</div>
+                <div style={{ ...edMono, ...edNum, color: 'var(--ink-faint)', marginTop: '4px', direction: 'ltr' }}>{formatSize(cvFile.size)} · ATTACHED</div>
+              </div>
+            </div>
+            <button onClick={handleRemove} aria-label="إزالة الملف" style={{ background: 'none', border: '1px solid var(--hairline)', color: 'var(--ink-soft)', width: '32px', height: '32px', cursor: 'pointer', fontSize: '18px', lineHeight: 1, flexShrink: 0 }}>×</button>
+          </div>
+        )}
+
+        {/* Error */}
+        {cvError && (
+          <div style={{ marginTop: '14px', padding: '10px 14px', border: '1px solid var(--hairline)', background: 'rgba(166, 60, 47, 0.04)', fontFamily: 'var(--f-arabic)', fontSize: '14px', color: '#7a2a22' }}>
+            {cvError}
+          </div>
+        )}
+
+        {/* Privacy note */}
+        <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', color: 'var(--ink-faint)', lineHeight: 1.8, margin: '20px 0 0' }}>
+          نقرأ سيرتك لاستخراج المعلومات الأكاديمية والمهنية فقط، ولا نحتفظ بأي معلومات اتصال شخصية. الملف لا يُسجَّل ولا يُشارَك مع أي طرف ثالث.
+        </p>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'stretch' : 'center', gap: '14px', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--hairline)' }}>
+          <button onClick={onContinue} style={{ background: 'none', border: 'none', cursor: 'pointer', ...edMono, color: 'var(--ink-soft)', padding: '12px 0', textAlign: isMobile ? 'center' : 'right', direction: 'ltr' }}>
+            تخطي · SKIP →
+          </button>
+          <HardButton variant="primary" onClick={onContinue} disabled={reading}>
+            <span>{cvFile ? 'إرفاق ومتابعة' : 'متابعة بدون سيرة'}</span>
+            <span>→</span>
+          </HardButton>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
 // QUESTIONNAIRE SCREEN
 // ═══════════════════════════════════════════════════════════════
 function QuestionnaireScreen({ answers, setAnswers, step, setStep, questions, totalSteps, onBack, onNext, isStepValid, confirming, isMobile }) {
@@ -1293,6 +1470,9 @@ export default function Home() {
   const [programFilter, setProgramFilter] = useState('all');
   const [universities, setUniversities] = useState([]);
   const [uniLoading, setUniLoading] = useState(true);
+  const [cvFile, setCvFile] = useState(null);
+  const [cvBase64, setCvBase64] = useState('');
+  const [cvError, setCvError] = useState('');
 
   // Fetch university data for explorer
   useEffect(() => {
@@ -1397,7 +1577,8 @@ export default function Home() {
           ...answers,
           countriesText: selectedCountryLabels,
           passions: passionsLabels.concat(answers.passionsExtra ? [answers.passionsExtra] : []),
-          goals: goalsLabels.concat(answers.goalsExtra ? [answers.goalsExtra] : [])
+          goals: goalsLabels.concat(answers.goalsExtra ? [answers.goalsExtra] : []),
+          ...(cvBase64 ? { cv: cvBase64 } : {})
         })
       });
       if (!response.ok) {
@@ -1419,7 +1600,7 @@ export default function Home() {
   };
   const handleBack = () => {
     if (step > 0) setStep(step - 1);
-    else setScreen('landing');
+    else setScreen('cvUpload');
   };
   const handleReset = () => {
     setScreen('landing');
@@ -1432,6 +1613,9 @@ export default function Home() {
     });
     setResults(null);
     setError(null);
+    setCvFile(null);
+    setCvBase64('');
+    setCvError('');
   };
 
   // ── LANDING ──
@@ -1445,16 +1629,28 @@ export default function Home() {
       </Head>
       <TopoLines />
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <Nav onStart={() => setScreen('questionnaire')} isMobile={isMobile} />
-        <Hero onStart={() => setScreen('questionnaire')} isMobile={isMobile} />
+        <Nav onStart={() => setScreen('cvUpload')} isMobile={isMobile} />
+        <Hero onStart={() => setScreen('cvUpload')} isMobile={isMobile} />
         <QuoteRibbon isMobile={isMobile} />
         <div id="method"><Method isMobile={isMobile} /></div>
         <ProgramBoard programFilter={programFilter} setProgramFilter={setProgramFilter} isMobile={isMobile} />
         <UniversityExplorer universities={universities} loading={uniLoading} isMobile={isMobile} />
-        <ClosingCTA onStart={() => setScreen('questionnaire')} isMobile={isMobile} />
+        <ClosingCTA onStart={() => setScreen('cvUpload')} isMobile={isMobile} />
         <Footer isMobile={isMobile} />
       </div>
     </div>
+  );
+
+  // ── CV UPLOAD ──
+  if (screen === 'cvUpload') return (
+    <CVUploadScreen
+      cvFile={cvFile} setCvFile={setCvFile}
+      cvBase64={cvBase64} setCvBase64={setCvBase64}
+      cvError={cvError} setCvError={setCvError}
+      onContinue={() => setScreen('questionnaire')}
+      onBack={() => setScreen('landing')}
+      isMobile={isMobile}
+    />
   );
 
   // ── QUESTIONNAIRE ──
