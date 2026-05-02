@@ -25,7 +25,7 @@ const FIELD_LABELS = {
 };
 const WEATHER_LABELS = { hot: 'حار', moderate: 'معتدل', cold: 'بارد', mixed: 'متغير' };
 const SAFETY_LABELS = { very_safe: 'آمن جداً', safe: 'آمن', moderate: 'معتدل' };
-const TIER_LABELS = { 1: 'TIER 1 · نخبة', 2: 'TIER 2 · متميز', 3: 'TIER 3 · متاح' };
+const TIER_LABELS = { 1: 'الفئة الأولى · نخبة', 2: 'الفئة الثانية · متميز', 3: 'الفئة الثالثة · متاح' };
 const MF_LABELS = {
   halal: { easy: 'حلال متوفر بسهولة', moderate: 'حلال متوفر', limited: 'حلال محدود' },
   mosque: { on_campus: 'مسجد في الحرم', nearby: 'مسجد قريب', limited: 'مساجد محدودة' },
@@ -134,7 +134,7 @@ function SectionEyebrow({ n, en, ar }) {
         <span style={{ fontFamily: 'var(--f-num)', fontSize: '56px', lineHeight: 0.9, color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400 }}>{n}</span>
         <span style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '32px', lineHeight: 1 }}>{ar}</span>
       </div>
-      <span style={{ fontFamily: 'var(--f-mono)', fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--ink-soft)', direction: 'ltr' }}>— {en}</span>
+      <span style={{ fontFamily: 'var(--f-mono)', fontSize: '10px', letterSpacing: '0.08em', color: 'var(--ink-soft)' }}>— {en}</span>
     </div>
   );
 }
@@ -237,9 +237,9 @@ function getStatusStyle(status) {
 // QUESTIONNAIRE DATA
 // ═══════════════════════════════════════════════════════════════
 const CHAPTERS = [
-  { id: 'you', n: 'I', title: 'أنت', en: 'WHO YOU ARE', keys: ['academicLevel', 'currentInstitution', 'gpa', 'english'] },
-  { id: 'goals', n: 'II', title: 'أهدافك', en: 'WHAT YOU WANT', keys: ['field', 'degreeLevel', 'passions', 'goals'] },
-  { id: 'logistics', n: 'III', title: 'اللوجستيات', en: 'THE LOGISTICS', keys: ['countries', 'weatherPreference', 'budget', 'gender', 'mahram'] },
+  { id: 'you', n: 'I', title: 'أنت', en: 'من أنت', keys: ['academicLevel', 'currentInstitution', 'gpa', 'english'] },
+  { id: 'goals', n: 'II', title: 'أهدافك', en: 'ما تريده', keys: ['field', 'degreeLevel', 'passions', 'goals'] },
+  { id: 'logistics', n: 'III', title: 'اللوجستيات', en: 'التفاصيل', keys: ['countries', 'weatherPreference', 'budget', 'gender', 'mahram'] },
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -277,17 +277,17 @@ function Hero({ onStart, isMobile }) {
   return (
     <section style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '20px 16px 0' : '32px 40px 0', position: 'relative' }}>
       <div style={{ ...edMono, display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--ink-soft)', marginBottom: isMobile ? '32px' : '56px', paddingTop: '4px', paddingBottom: '4px', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', fontSize: isMobile ? '8px' : undefined }}>
-        <span style={{ direction: 'ltr' }}>VOL. I · ISSUE 01 · 2026</span>
-        {!isMobile && <span style={{ direction: 'ltr' }}>RIYADH ↔ THE WORLD</span>}
+        <span>المجلد الأول · العدد ٠١ · ٢٠٢٦</span>
+        {!isMobile && <span>الرياض ↔ العالم</span>}
         <span style={{ fontFamily: 'var(--f-arabic-disp)', letterSpacing: 0, fontSize: isMobile ? '11px' : '13px' }}>مجلة الطالب المُبتَعَث</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.2fr', gap: isMobile ? '32px' : '64px', alignItems: 'start' }}>
         <div style={{ paddingTop: '24px' }}>
-          <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '18px', direction: 'ltr' }}>◆ Chapter One — The Journey</div>
-          <p style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontWeight: 400, fontSize: '28px', lineHeight: 1.35, color: 'var(--ink-soft)', margin: '0 0 28px', maxWidth: '460px' }}>
-            "For every student who dreams beyond the map —<br />
-            <span style={{ color: 'var(--ink)' }}>here is the compass.</span>"
+          <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '18px' }}>◆ الفصل الأول — الرحلة</div>
+          <p style={{ fontFamily: 'var(--f-arabic-disp)', fontWeight: 400, fontSize: '24px', lineHeight: 1.5, color: 'var(--ink-soft)', margin: '0 0 28px', maxWidth: '460px' }}>
+            "لكل طالب يحلم بما هو أبعد من الخريطة —<br />
+            <span style={{ color: 'var(--ink)' }}>هنا البوصلة.</span>"
           </p>
           <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '17px', lineHeight: 1.95, color: 'var(--ink-soft)', margin: '0 0 36px', maxWidth: '460px', fontWeight: 400 }}>
             مرشدك الذكي إلى الابتعاث الحكومي والجامعات العالمية. اثنا عشر سؤالاً تترجم إلى تقرير شخصي مكتوب بعناية — برامج، جامعات، ومراحل عملية.
@@ -304,14 +304,13 @@ function Hero({ onStart, isMobile }) {
             <p style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '22px', lineHeight: 1.6, margin: 0, color: 'var(--ink)' }}>
               ◆ اثنا عشر سؤالاً فقط تفصلك عن خارطة طريقك.
             </p>
-            <span style={{ ...edMono, color: 'var(--ink-faint)', fontSize: '9px', direction: 'ltr', display: 'block', marginTop: '8px' }}>BUILT IN RIYADH · POWERED BY AI</span>
+            <span style={{ ...edMono, color: 'var(--ink-faint)', fontSize: '9px', display: 'block', marginTop: '8px' }}>صُنع في الرياض · بالذكاء الاصطناعي</span>
           </div>
           <div style={{ marginTop: '24px', display: 'flex', gap: '32px', paddingTop: '20px', borderTop: '1px solid var(--hairline)' }}>
-            {[{ n: '12', l: 'أسئلة', en: 'questions' }, { n: "3'", l: 'دقائق', en: 'minutes' }, { n: '8', l: 'وجهات', en: 'destinations' }].map((s, i) => (
+            {[{ n: '12', l: 'أسئلة' }, { n: "3'", l: 'دقائق' }, { n: '8', l: 'وجهات' }].map((s, i) => (
               <div key={i}>
                 <div style={{ ...edNum, fontSize: '56px', lineHeight: 1, fontWeight: 400, fontStyle: 'italic' }}>{s.n}</div>
                 <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '13px', marginTop: '4px' }}>{s.l}</div>
-                <div style={{ ...edMono, color: 'var(--ink-faint)', marginTop: '2px', direction: 'ltr' }}>{s.en}</div>
               </div>
             ))}
           </div>
@@ -350,7 +349,7 @@ function QuoteRibbon({ isMobile }) {
         <p style={{ margin: 0, fontFamily: 'var(--f-arabic-disp)', fontSize: isMobile ? '22px' : 'clamp(24px, 2.6vw, 38px)', lineHeight: 1.5, textAlign: 'center' }}>
           ساعات بحث، ملفات إكسل، أسئلة بدون إجابة — اختصرها مستشار الابتعاث في ثلاث دقائق.
         </p>
-        {!isMobile && <span style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr' }}>RIYADH '26</span>}
+        {!isMobile && <span style={{ ...edMono, color: 'var(--ink-faint)' }}>الرياض ٢٦</span>}
       </div>
     </section>
   );
@@ -367,12 +366,12 @@ function Method({ isMobile }) {
   ];
   return (
     <section id="method" style={{ maxWidth: 1280, margin: isMobile ? '48px auto 0' : '96px auto 0', padding: isMobile ? '0 16px' : '0 40px' }}>
-      <SectionEyebrow n="I" en="THE METHOD" ar="الطريقة" />
+      <SectionEyebrow n="I" en="المنهجية" ar="الطريقة" />
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 0 }}>
         {steps.map((s, i) => (
           <article key={i} style={{ padding: isMobile ? '20px 0' : '8px 32px 8px 0', borderInlineStart: !isMobile && i > 0 ? '1px solid var(--hairline)' : 'none', paddingInlineStart: !isMobile && i > 0 ? '32px' : 0, borderTop: isMobile && i > 0 ? '1px solid var(--hairline)' : 'none' }}>
             <div style={{ ...edNum, fontSize: isMobile ? '56px' : '84px', fontStyle: 'italic', lineHeight: 0.9, color: 'var(--accent)', fontWeight: 400, marginBottom: '16px' }}>{s.n}.</div>
-            <div style={{ ...edMono, color: 'var(--ink-soft)', marginBottom: '6px', direction: 'ltr' }}>MOVEMENT {String(i + 1).padStart(2, '0')}</div>
+            <div style={{ ...edMono, color: 'var(--ink-soft)', marginBottom: '6px' }}>المرحلة {String(i + 1).padStart(2, '0')}</div>
             <h3 style={{ fontFamily: 'var(--f-arabic-disp)', fontWeight: 400, fontSize: isMobile ? '32px' : '44px', lineHeight: 1, margin: '0 0 14px' }}>{s.ar}</h3>
             <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '15px', lineHeight: 2, color: 'var(--ink-soft)', margin: 0 }}>{s.body}</p>
           </article>
@@ -394,7 +393,7 @@ function ProgramBoard({ programFilter, setProgramFilter, isMobile }) {
 
   return (
     <section id="programs" style={{ maxWidth: 1280, margin: isMobile ? '48px auto 0' : '96px auto 0', padding: isMobile ? '0 16px' : '0 40px' }}>
-      <SectionEyebrow n="II" en="GOVT. SCHOLARSHIPS" ar="برامج الابتعاث" />
+      <SectionEyebrow n="II" en="المنح الحكومية" ar="برامج الابتعاث" />
       <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', color: 'var(--ink-soft)', marginTop: '-14px', marginBottom: '28px' }}>
         ◆ المواعيد تقريبية بناءً على الدورات السابقة — تحقق من المواقع الرسمية.
       </p>
@@ -435,7 +434,7 @@ function ProgramBoard({ programFilter, setProgramFilter, isMobile }) {
               </div>
               <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', lineHeight: 2, color: 'var(--ink-soft)', margin: '0 0 14px' }}>{prog.description}</p>
               <div style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '14px', color: 'var(--ink-soft)', marginBottom: '8px' }}>
-                {!prog.ongoing && !prog.varies && <span>Opens {prog.openLabel} · Closes {prog.closeLabel}</span>}
+                {!prog.ongoing && !prog.varies && <span>يفتح {prog.openLabel} · يغلق {prog.closeLabel}</span>}
                 {(prog.varies || prog.ongoing) && <span>{prog.openLabel}</span>}
               </div>
               {nextOpen && (
@@ -459,15 +458,15 @@ function ProgramBoard({ programFilter, setProgramFilter, isMobile }) {
 // HOME: UNIVERSITY EXPLORER
 // ═══════════════════════════════════════════════════════════════
 const UNI_COUNTRY_TABS = [
-  { value: 'all', ar: 'الكل', en: 'ALL' },
-  { value: 'الولايات المتحدة', ar: 'أمريكا', en: 'USA' },
-  { value: 'المملكة المتحدة', ar: 'بريطانيا', en: 'UK' },
-  { value: 'كندا', ar: 'كندا', en: 'CA' },
-  { value: 'أستراليا', ar: 'أستراليا', en: 'AU' },
-  { value: 'اليابان', ar: 'اليابان', en: 'JP' },
-  { value: 'كوريا الجنوبية', ar: 'كوريا', en: 'KR' },
-  { value: 'إسبانيا', ar: 'إسبانيا', en: 'ES' },
-  { value: 'نيوزيلندا', ar: 'نيوزيلندا', en: 'NZ' },
+  { value: 'all', ar: 'الكل', en: 'الكل' },
+  { value: 'الولايات المتحدة', ar: 'أمريكا', en: 'الولايات المتحدة' },
+  { value: 'المملكة المتحدة', ar: 'بريطانيا', en: 'المملكة المتحدة' },
+  { value: 'كندا', ar: 'كندا', en: 'كندا' },
+  { value: 'أستراليا', ar: 'أستراليا', en: 'أستراليا' },
+  { value: 'اليابان', ar: 'اليابان', en: 'اليابان' },
+  { value: 'كوريا الجنوبية', ar: 'كوريا', en: 'كوريا الجنوبية' },
+  { value: 'إسبانيا', ar: 'إسبانيا', en: 'إسبانيا' },
+  { value: 'نيوزيلندا', ar: 'نيوزيلندا', en: 'نيوزيلندا' },
 ];
 
 const UNI_FIELD_TABS = [
@@ -492,10 +491,10 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
   if (uniLoading) {
     return (
       <section id="atlas" style={{ maxWidth: 1280, margin: '96px auto 0', padding: '0 40px' }}>
-        <SectionEyebrow n="III" en="THE ATLAS" ar="دليل الجامعات" />
+        <SectionEyebrow n="III" en="أطلس الجامعات" ar="دليل الجامعات" />
         <div style={{ textAlign: 'center', padding: '60px 0' }}>
           <div style={{ width: '48px', height: '48px', border: '1px solid var(--hairline)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'ed-spin 1.6s linear infinite', margin: '0 auto 20px' }} />
-          <div style={{ ...edMono, color: 'var(--ink-faint)' }}>LOADING ATLAS DATA</div>
+          <div style={{ ...edMono, color: 'var(--ink-faint)' }}>جارٍ تحميل بيانات الأطلس</div>
         </div>
       </section>
     );
@@ -519,12 +518,12 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
 
   return (
     <section id="atlas" style={{ maxWidth: 1280, margin: isMobile ? '48px auto 0' : '96px auto 0', padding: isMobile ? '0 16px' : '0 40px' }}>
-      <SectionEyebrow n="III" en="THE ATLAS" ar="دليل الجامعات" />
+      <SectionEyebrow n="III" en="أطلس الجامعات" ar="دليل الجامعات" />
 
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr', gap: isMobile ? '24px' : '48px', marginBottom: '32px' }}>
         <div>
           <h2 style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontWeight: 400, fontSize: isMobile ? '32px' : '48px', lineHeight: 1, margin: '0 0 16px' }}>
-            {universities.length} universities,<br />one atlas.
+            {universities.length} جامعة،<br />أطلس واحد.
           </h2>
           <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '15px', lineHeight: 2, color: 'var(--ink-soft)', margin: '0 0 20px', maxWidth: '360px' }}>
             قاعدة بيانات شاملة للجامعات المدعومة ببرامج الابتعاث الحكومي. ابحث بالدولة أو التخصص أو الاسم.
@@ -534,8 +533,8 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
             <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="ابحث بالاسم أو المدينة..."
               style={{ width: '100%', padding: '14px 16px', background: 'transparent', border: '1px solid var(--hairline)', fontFamily: 'var(--f-arabic)', fontSize: '15px', color: 'var(--ink)', direction: 'rtl' }} />
           </div>
-          <div style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr', lineHeight: 2 }}>
-            ★ {filtered.length} of {universities.length} shown
+          <div style={{ ...edMono, color: 'var(--ink-faint)', lineHeight: 2 }}>
+            ★ {filtered.length} من {universities.length}
           </div>
         </div>
 
@@ -563,12 +562,11 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
                 return (
                   <button key={tab.value} onClick={() => { setCountryFilter(tab.value); setShowCount(12); }}
                     onMouseEnter={() => setHoveredCountry(tab.value)} onMouseLeave={() => setHoveredCountry(null)}
-                    style={{ display: 'grid', gridTemplateColumns: '48px 1fr 1fr auto 24px', gap: '20px', alignItems: 'baseline', width: '100%', padding: '14px 0', cursor: 'pointer', background: active ? 'var(--paper-2)' : (hoveredCountry === tab.value ? 'rgba(20,35,59,0.03)' : 'transparent'), border: 'none', borderBottom: '1px solid var(--hairline)', paddingInline: active ? '12px' : '0 12px', textAlign: 'right', transition: 'all .2s' }}>
+                    style={{ display: 'grid', gridTemplateColumns: '48px 1fr auto 24px', gap: '20px', alignItems: 'baseline', width: '100%', padding: '14px 0', cursor: 'pointer', background: active ? 'var(--paper-2)' : (hoveredCountry === tab.value ? 'rgba(20,35,59,0.03)' : 'transparent'), border: 'none', borderBottom: '1px solid var(--hairline)', paddingInline: active ? '12px' : '0 12px', textAlign: 'right', transition: 'all .2s' }}>
                     <span style={{ ...edNum, fontStyle: 'italic', fontSize: '20px', color: 'var(--ink-faint)', fontWeight: 400, direction: 'ltr', textAlign: 'left' }}>{String(i).padStart(2, '0')}</span>
                     <span style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '26px', lineHeight: 1, color: active ? 'var(--ink)' : 'var(--ink-soft)' }}>{tab.ar}</span>
-                    <span style={{ fontFamily: 'var(--f-display)', fontSize: '18px', fontStyle: 'italic', color: 'var(--ink-faint)', direction: 'ltr', textAlign: 'left' }}>{tab.en}</span>
-                    <span style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '18px', color: active ? 'var(--accent)' : 'var(--ink-faint)', direction: 'ltr' }}>
-                      {count} <span style={{ fontSize: '11px' }}>uni.</span>
+                    <span style={{ fontFamily: 'var(--f-arabic)', fontStyle: 'normal', fontSize: '15px', color: active ? 'var(--accent)' : 'var(--ink-faint)' }}>
+                      {count} جامعة
                     </span>
                     <span style={{ fontFamily: 'var(--f-display)', fontSize: '18px', color: 'var(--accent)', opacity: hoveredCountry === tab.value || active ? 1 : 0, transition: 'opacity .2s', direction: 'ltr' }}>→</span>
                   </button>
@@ -615,7 +613,7 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
                   {isMobile && (
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', alignItems: 'center' }}>
                       <span style={{ ...edMono, padding: '2px 6px', border: '1px solid var(--rule)', color: 'var(--ink)', fontSize: '9px', direction: 'ltr' }}>
-                        {TIER_LABELS[u.tier] || `TIER ${u.tier}`}
+                        {TIER_LABELS[u.tier] || `الفئة ${u.tier}`}
                       </span>
                       {WEATHER_LABELS[u.weather] && (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--f-arabic)', fontSize: '11px', color: getWeatherColor(u.weather) }}>
@@ -642,7 +640,7 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
                 {!isMobile && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <span style={{ ...edMono, display: 'inline-block', padding: '3px 8px', border: '1px solid var(--rule)', color: 'var(--ink)', alignSelf: 'flex-start', direction: 'ltr' }}>
-                      {TIER_LABELS[u.tier] || `TIER ${u.tier}`}
+                      {TIER_LABELS[u.tier] || `الفئة ${u.tier}`}
                     </span>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {WEATHER_LABELS[u.weather] && (
@@ -683,7 +681,7 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
               {/* Muslim-friendly expanded */}
               {isExpanded && mfLabels.length > 0 && (
                 <div style={{ marginTop: '12px', marginInlineStart: isMobile ? '52px' : '70px', padding: '14px 16px', background: 'var(--paper-2)', borderInlineStart: '2px solid var(--accent)' }}>
-                  <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '8px', direction: 'ltr' }}>MUSLIM-FRIENDLY INFO</div>
+                  <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '8px' }}>بيئة مناسبة للمسلمين</div>
                   {mfLabels.map((label, mi) => (
                     <div key={mi} style={{ fontFamily: 'var(--f-arabic)', fontSize: '13px', color: 'var(--ink-soft)', lineHeight: 2 }}>{label}</div>
                   ))}
@@ -698,7 +696,7 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--ink-faint)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
           <Compass size={56} />
           <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '16px', margin: 0 }}>لا توجد جامعات تطابق معايير البحث</p>
-          <p style={{ ...edMono, fontSize: '10px', direction: 'ltr', margin: 0 }}>TRY ADJUSTING YOUR FILTERS</p>
+          <p style={{ ...edMono, fontSize: '10px', margin: 0 }}>جرّب تعديل المرشحات</p>
         </div>
       )}
 
@@ -706,7 +704,7 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
           <HardButton variant="ghost" onClick={() => setShowCount(prev => prev + 12)}>
             <span>عرض المزيد</span>
-            <span style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic' }}>({filtered.length - showCount} remaining)</span>
+            <span style={{ fontFamily: 'var(--f-arabic)' }}>({filtered.length - showCount} أخرى)</span>
           </HardButton>
         </div>
       )}
@@ -722,12 +720,12 @@ function ClosingCTA({ onStart, isMobile }) {
     <section style={{ maxWidth: 1280, margin: isMobile ? '64px auto 0' : '120px auto 0', padding: isMobile ? '0 16px' : '0 40px' }}>
       <div style={{ borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', padding: isMobile ? '40px 0' : '72px 0', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto', gap: isMobile ? '32px' : '48px', alignItems: 'center', textAlign: isMobile ? 'center' : undefined }}>
         <div>
-          <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '18px', direction: 'ltr' }}>◆ Begin</div>
+          <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '18px' }}>◆ انطلق</div>
           <h2 style={{ fontFamily: 'var(--f-arabic-disp)', fontWeight: 400, fontSize: 'clamp(56px, 8vw, 112px)', lineHeight: 0.95, margin: 0 }}>
             خذ القرار <span style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', color: 'var(--accent)', fontSize: '0.85em' }}>اليوم</span>.
           </h2>
           <p style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '22px', color: 'var(--ink-soft)', margin: '20px 0 0', maxWidth: '540px' }}>
-            Three minutes. No account, no email, no shared data — just answers.
+            ثلاث دقائق. بلا حساب، بلا بريد، بلا مشاركة بيانات — فقط إجابات.
           </p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
@@ -754,16 +752,16 @@ function Footer({ isMobile }) {
         </p>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ ...edMono, color: 'var(--ink-faint)', marginBottom: '6px', direction: 'ltr' }}>INDEX · فهرس</div>
+        <div style={{ ...edMono, color: 'var(--ink-faint)', marginBottom: '6px' }}>فهرس</div>
         <a href="#method">الطريقة</a>
         <a href="#programs">البرامج</a>
         <a href="#atlas">الجامعات</a>
       </div>
       <div style={{ direction: 'ltr', textAlign: 'left', ...edMono, lineHeight: 2.2, color: 'var(--ink-faint)' }}>
-        © 2026 Mustashar al-Ibtiath<br />
-        Built in Riyadh — Not government<br />
-        Vol. I · Issue 01<br />
-        Done by{' '}<a href="https://www.linkedin.com/in/sanad-al-lheani/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Sanad Allheani</a>
+        © 2026 مستشار الابتعاث<br />
+        صُنع في الرياض — ليس حكومياً<br />
+        المجلد الأول · العدد الأول<br />
+        صنعه{' '}<a href="https://www.linkedin.com/in/sanad-al-lheani/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Sanad Allheani</a>
       </div>
     </footer>
   );
@@ -845,7 +843,7 @@ function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, set
             <span>Mustashar</span>
             <span style={{ fontFamily: 'var(--f-arabic-disp)', fontStyle: 'normal', fontSize: '20px', color: 'var(--ink-soft)', marginInlineStart: '4px' }}>· مستشار</span>
           </button>
-          <div style={{ ...edMono, color: 'var(--ink-soft)', direction: 'ltr' }}>OPTIONAL · PRELUDE</div>
+          <div style={{ ...edMono, color: 'var(--ink-soft)' }}>اختياري · مقدمة</div>
         </div>
       </header>
 
@@ -856,12 +854,12 @@ function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, set
             <span style={{ fontFamily: 'var(--f-num)', fontSize: isMobile ? '44px' : '56px', lineHeight: 0.9, color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400 }}>№00</span>
             <span style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: isMobile ? '26px' : '32px', lineHeight: 1 }}>ملف الطالب</span>
           </div>
-          <span style={{ ...edMono, color: 'var(--ink-soft)', direction: 'ltr', display: isMobile ? 'none' : 'inline' }}>— THE DOSSIER</span>
+          <span style={{ ...edMono, color: 'var(--ink-soft)', display: isMobile ? 'none' : 'inline' }}>— الملف الشخصي</span>
         </div>
 
         {/* Lede */}
-        <p style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: isMobile ? '18px' : '20px', lineHeight: 1.6, color: 'var(--ink-soft)', margin: '0 0 8px' }}>
-          Attach your CV for a sharper, more personal analysis.
+        <p style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: isMobile ? '18px' : '22px', lineHeight: 1.6, color: 'var(--ink-soft)', margin: '0 0 8px' }}>
+          أرفق سيرتك للحصول على تحليل أعمق وأكثر شخصية.
         </p>
         <p style={{ fontFamily: 'var(--f-arabic)', fontSize: isMobile ? '15px' : '16px', lineHeight: 1.85, color: 'var(--ink)', margin: '0 0 36px' }}>
           ارفق سيرتك الذاتية بصيغة PDF ليصبح التحليل أعمق وأقرب إلى ملفك. الخطوة اختيارية، ولن يؤثر تخطيها على جودة التوصيات.
@@ -901,7 +899,7 @@ function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, set
             <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '16px', color: 'var(--ink)', marginBottom: '6px' }}>
               {reading ? 'جارٍ قراءة الملف…' : 'اسحب ملف PDF هنا أو اضغط للاختيار'}
             </div>
-            <div style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr' }}>PDF ONLY · MAX 2MB</div>
+            <div style={{ ...edMono, color: 'var(--ink-faint)' }}>PDF فقط · الحد الأقصى ٢ ميجابايت</div>
           </label>
         ) : (
           <div style={{ border: '1px solid var(--rule)', padding: isMobile ? '18px' : '22px 26px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
@@ -912,7 +910,7 @@ function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, set
               </svg>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '15px', color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cvFile.name}</div>
-                <div style={{ ...edMono, ...edNum, color: 'var(--ink-faint)', marginTop: '4px', direction: 'ltr' }}>{formatSize(cvFile.size)} · ATTACHED</div>
+                <div style={{ ...edMono, ...edNum, color: 'var(--ink-faint)', marginTop: '4px', direction: 'ltr' }}>{formatSize(cvFile.size)} · مُرفَق</div>
               </div>
             </div>
             <button onClick={handleRemove} aria-label="إزالة الملف" style={{ background: 'none', border: '1px solid var(--hairline)', color: 'var(--ink-soft)', width: '32px', height: '32px', cursor: 'pointer', fontSize: '18px', lineHeight: 1, flexShrink: 0 }}>×</button>
@@ -933,8 +931,8 @@ function CVUploadScreen({ cvFile, setCvFile, cvBase64, setCvBase64, cvError, set
 
         {/* Actions */}
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'stretch' : 'center', gap: '14px', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--hairline)' }}>
-          <button onClick={onContinue} style={{ background: 'none', border: 'none', cursor: 'pointer', ...edMono, color: 'var(--ink-soft)', padding: '12px 0', textAlign: isMobile ? 'center' : 'right', direction: 'ltr' }}>
-            تخطي · SKIP →
+          <button onClick={onContinue} style={{ background: 'none', border: 'none', cursor: 'pointer', ...edMono, color: 'var(--ink-soft)', padding: '12px 0', textAlign: isMobile ? 'center' : 'right' }}>
+            تخطي ←
           </button>
           <HardButton variant="primary" onClick={onContinue} disabled={reading}>
             <span>{cvFile ? 'إرفاق ومتابعة' : 'متابعة بدون سيرة'}</span>
@@ -982,7 +980,7 @@ function QuestionnaireScreen({ answers, setAnswers, step, setStep, questions, to
             {String(totalSteps).padStart(2, '0')} / {String(totalSteps).padStart(2, '0')}
           </div>
           <div style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '36px', color: 'var(--ink)' }}>اكتمل ✓</div>
-          <div style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr' }}>QUESTIONNAIRE COMPLETE</div>
+          <div style={{ ...edMono, color: 'var(--ink-faint)' }}>اكتمل الاستبيان</div>
         </div>
       )}
 
@@ -995,7 +993,7 @@ function QuestionnaireScreen({ answers, setAnswers, step, setStep, questions, to
             <span style={{ fontFamily: 'var(--f-arabic-disp)', fontStyle: 'normal', fontSize: '20px', color: 'var(--ink-soft)', marginInlineStart: '4px' }}>· مستشار</span>
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '18px', ...edMono, color: 'var(--ink-soft)' }}>
-            <span style={{ direction: 'ltr' }}>CHAPTER {currentChapter.n}</span>
+            <span>الفصل {currentChapter.n}</span>
             <span style={{ width: '1px', height: '14px', background: 'var(--hairline)' }} />
             <span style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '16px', lineHeight: 1, letterSpacing: 0 }}>{currentChapter.title}</span>
           </div>
@@ -1006,7 +1004,7 @@ function QuestionnaireScreen({ answers, setAnswers, step, setStep, questions, to
         {/* Progress */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px' }}>
           <div>
-            <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '4px', direction: 'ltr' }}>◆ CHAPTER {currentChapter.n} — {currentChapter.en}</div>
+            <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '4px' }}>◆ الفصل {currentChapter.n} — {currentChapter.title}</div>
             <div style={{ ...edNum, fontStyle: 'italic', fontWeight: 400, fontSize: '48px', lineHeight: 1, direction: 'ltr' }}>
               {String(step + 1).padStart(2, '0')}<span style={{ color: 'var(--ink-faint)' }}> / {String(totalSteps).padStart(2, '0')}</span>
             </div>
@@ -1049,7 +1047,6 @@ function QuestionnaireScreen({ answers, setAnswers, step, setStep, questions, to
                     style={{ background: active ? 'var(--paper-2)' : 'transparent', border: 'none', borderInlineEnd: (ci + 1) % cols !== 0 ? '1px solid var(--hairline)' : 'none', borderBottom: ci < COUNTRIES.length - cols ? '1px solid var(--hairline)' : 'none', padding: isMobile ? '16px 12px' : '20px 16px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px', position: 'relative', transition: 'all .25s', color: 'var(--ink)' }}>
                     <span style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr' }}>{c.code}</span>
                     <span style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '24px', lineHeight: 1 }}>{c.ar}</span>
-                    <span style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '14px', direction: 'ltr', color: 'var(--ink-soft)' }}>{c.en}</span>
                     {active && (
                       <span style={{ position: 'absolute', top: '10px', insetInlineStart: '10px', width: '18px', height: '18px', borderRadius: '50%', background: 'var(--accent)', color: '#1a1206', fontFamily: 'var(--f-display)', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓</span>
                     )}
@@ -1165,7 +1162,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
           <button onClick={onReset} style={{ display: 'flex', alignItems: 'center', gap: '14px', fontFamily: 'var(--f-display)', fontWeight: 500, fontSize: '26px', direction: 'ltr', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)' }}>
             <Compass size={28} /><span>Mustashar</span>
           </button>
-          <div style={{ ...edMono, color: 'var(--ink-soft)', direction: 'ltr' }}>REPORT · التقرير</div>
+          <div style={{ ...edMono, color: 'var(--ink-soft)' }}>التقرير</div>
         </div>
       </header>
 
@@ -1180,7 +1177,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             <div>
               <div style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '56px', lineHeight: 1, marginBottom: '14px' }}>نُؤلِّف تقريرك.</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                <span style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr', fontSize: '11px' }}>◆ COMPOSING THE REPORT</span>
+                <span style={{ ...edMono, color: 'var(--ink-faint)', fontSize: '11px' }}>◆ جارٍ تأليف التقرير</span>
                 <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '18px', color: 'var(--ink-soft)' }}>
                   تأليف التقرير<span style={{ animation: 'ed-blink 1s steps(1) infinite' }}>_</span>
                 </span>
@@ -1205,15 +1202,15 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             {/* Newspaper Masthead */}
             <div style={{ marginBottom: '32px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', ...edMono, color: 'var(--ink-soft)', padding: '6px 0', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)' }}>
-                <span style={{ direction: 'ltr' }}>VOL. I — REPORT 0001</span>
+                <span>المجلد الأول — التقرير ٠٠٠١</span>
                 <span style={{ direction: 'ltr' }}>{dateStr}</span>
-                <span style={{ direction: 'ltr' }}>RIYADH EDITION</span>
+                <span>إصدار الرياض</span>
               </div>
               <h1 style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: 'clamp(72px, 10vw, 144px)', lineHeight: 0.85, margin: '20px 0 16px', fontWeight: 400, textAlign: 'center' }}>مستشار الابتعاث</h1>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '17px', color: 'var(--ink-soft)' }}>
                 <span style={{ fontFamily: 'var(--f-arabic-disp)', fontStyle: 'normal' }}>التقرير الشخصي</span>
-                <span style={{ direction: 'ltr', color: 'var(--accent)' }}>◆ Compiled by AI · Free ◆</span>
-                <span style={{ direction: 'ltr' }}>folio · 0001</span>
+                <span style={{ color: 'var(--accent)' }}>◆ مُجمَّع بالذكاء الاصطناعي · مجاناً ◆</span>
+                <span>صفحة · ٠٠٠١</span>
               </div>
             </div>
 
@@ -1227,7 +1224,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             {/* Lead — Dossier + Analysis (RTL: dossier right, analysis left — user reads dossier first then analysis) */}
             <section style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.7fr', gap: isMobile ? '32px' : '48px', paddingBottom: '40px', borderBottom: '1px solid var(--rule)' }}>
               <aside style={{ alignSelf: 'start', padding: '24px 28px', background: 'var(--paper-2)', border: '1px solid var(--hairline)' }}>
-                <div style={{ ...edMono, color: 'var(--ink-faint)', marginBottom: '16px', direction: 'ltr' }}>DOSSIER · الملف الشخصي</div>
+                <div style={{ ...edMono, color: 'var(--ink-faint)', marginBottom: '16px' }}>الملف الشخصي</div>
                 <dl style={{ margin: 0, fontFamily: 'var(--f-arabic)', fontSize: '13.5px' }}>
                   {[
                     ['التخصص', answers?.field],
@@ -1245,7 +1242,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                 </dl>
               </aside>
               <div>
-                <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '14px', direction: 'ltr' }}>◆ THE LEAD — صدارة العدد</div>
+                <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '14px' }}>◆ صدارة العدد</div>
                 <h2 style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: 'clamp(40px, 5vw, 72px)', lineHeight: 1, margin: 0, fontWeight: 400 }}>
                   {answers?.field
                     ? <>طريقك إلى <span style={{ color: 'var(--accent)', fontFamily: 'var(--f-display)', fontStyle: 'italic' }}>{answers.field}</span> — مرسوم.</>
@@ -1263,7 +1260,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             {/* Programs */}
             {results.programs?.length > 0 && (
               <section style={{ marginTop: '56px' }}>
-                <SectionEyebrow n="I" en="GOVT. SCHOLARSHIPS" ar="البرامج الحكومية" />
+                <SectionEyebrow n="I" en="المنح الحكومية" ar="البرامج الحكومية" />
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: 0 }}>
                   {results.programs.map((p, i) => {
                     const left = isMobile || i % 2 === 0;
@@ -1277,13 +1274,13 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                         <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', lineHeight: 2, margin: '0 0 14px', color: 'var(--ink-soft)' }}>{p.description}</p>
                         {p.fit && (
                           <div style={{ background: 'var(--paper-2)', padding: '12px 14px', marginBottom: '14px', borderInlineStart: '2px solid var(--accent)' }}>
-                            <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '4px', direction: 'ltr' }}>WHY YOU · لماذا أنت</div>
+                            <div style={{ ...edMono, color: 'var(--accent)', marginBottom: '4px' }}>لماذا أنت</div>
                             <p style={{ margin: 0, fontFamily: 'var(--f-arabic)', fontSize: '13.5px', lineHeight: 1.9 }}>{p.fit}</p>
                           </div>
                         )}
                         {p.eligibility && (
                           <div style={{ borderTop: '1px dotted var(--hairline)', paddingTop: '12px', marginBottom: '12px' }}>
-                            <div style={{ ...edMono, color: 'var(--ink-faint)', marginBottom: '4px', direction: 'ltr' }}>ELIGIBILITY · الأهلية</div>
+                            <div style={{ ...edMono, color: 'var(--ink-faint)', marginBottom: '4px' }}>الأهلية</div>
                             <p style={{ margin: 0, fontFamily: 'var(--f-arabic)', fontSize: '13.5px', lineHeight: 1.9, color: 'var(--ink-soft)' }}>{p.eligibility}</p>
                           </div>
                         )}
@@ -1302,7 +1299,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             {/* Universities */}
             {results.universities?.length > 0 && (
               <section style={{ marginTop: '64px' }}>
-                <SectionEyebrow n="II" en="UNIVERSITIES" ar="الجامعات" />
+                <SectionEyebrow n="II" en="الجامعات" ar="الجامعات" />
                 <ol style={{ margin: 0, padding: 0, listStyle: 'none', borderTop: '1px solid var(--rule)' }}>
                   {results.universities.map((u, i) => {
                     const isExpanded = expandedUni === i;
@@ -1401,7 +1398,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             {/* Requirements */}
             {results.requirements?.length > 0 && (
               <section style={{ marginTop: '64px' }}>
-                <SectionEyebrow n="III" en="REQUIREMENTS" ar="المتطلبات" />
+                <SectionEyebrow n="III" en="المتطلبات" ar="المتطلبات" />
                 <div style={{ border: '1px solid var(--hairline)', padding: '28px 32px' }}>
                   <ul style={{ margin: 0, padding: 0, listStyle: 'none', columnCount: isMobile ? 1 : 2, columnGap: '36px', fontFamily: 'var(--f-arabic)', fontSize: '14.5px', lineHeight: 2 }}>
                     {results.requirements.map((r, i) => (
@@ -1418,13 +1415,13 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             {/* Next Steps */}
             {results.nextSteps?.length > 0 && (
               <section style={{ marginTop: '64px' }}>
-                <SectionEyebrow n="IV" en="NEXT STEPS" ar="الخطوات القادمة" />
+                <SectionEyebrow n="IV" en="الخطوات القادمة" ar="الخطوات القادمة" />
                 <ol style={{ margin: 0, padding: 0, listStyle: 'none', borderTop: '1px solid var(--rule)' }}>
                   {results.nextSteps.map((s, i) => (
                     <li key={i} style={{ borderBottom: '1px solid var(--hairline)', padding: isMobile ? '16px 0' : '22px 0', display: 'grid', gridTemplateColumns: isMobile ? '40px 1fr' : '80px 1fr auto', gap: isMobile ? '12px' : '28px', alignItems: 'center' }}>
                       <div style={{ ...edNum, fontStyle: 'italic', fontSize: isMobile ? '32px' : '56px', lineHeight: 0.9, color: 'var(--accent)', fontWeight: 400, direction: 'ltr' }}>{String(i + 1).padStart(2, '0')}</div>
                       <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '16px', lineHeight: 1.85 }}>{s}</div>
-                      <div style={{ ...edMono, color: 'var(--ink-faint)', direction: 'ltr' }}>WK {Math.ceil((i + 1) / 2)}</div>
+                      <div style={{ ...edMono, color: 'var(--ink-faint)' }}>الأسبوع {Math.ceil((i + 1) / 2)}</div>
                     </li>
                   ))}
                 </ol>
@@ -1438,10 +1435,10 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
               <HardButton variant="primary" onClick={onReset}><span>ابدأ من جديد</span><span>↺</span></HardButton>
             </section>
 
-            <footer style={{ marginTop: '48px', paddingTop: '16px', borderTop: '1px solid var(--hairline)', ...edMono, color: 'var(--ink-faint)', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '4px' : 0, justifyContent: 'space-between', alignItems: isMobile ? 'center' : undefined, direction: 'ltr', fontSize: isMobile ? '9px' : undefined }}>
-              <span>— END OF REPORT —</span>
-              <span>MUSTASHAR · 2026 · VOL. I</span>
-              <span>Built in Riyadh — Not government</span>
+            <footer style={{ marginTop: '48px', paddingTop: '16px', borderTop: '1px solid var(--hairline)', ...edMono, color: 'var(--ink-faint)', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '4px' : 0, justifyContent: 'space-between', alignItems: isMobile ? 'center' : undefined, fontSize: isMobile ? '9px' : undefined }}>
+              <span>— نهاية التقرير —</span>
+              <span>مستشار · ٢٠٢٦ · المجلد الأول</span>
+              <span>صُنع في الرياض — غير حكومي</span>
             </footer>
           </main>
         )}
