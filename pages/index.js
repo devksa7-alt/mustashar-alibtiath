@@ -467,6 +467,12 @@ const UNI_COUNTRY_TABS = [
   { value: 'كوريا الجنوبية', ar: 'كوريا', en: 'كوريا الجنوبية' },
   { value: 'إسبانيا', ar: 'إسبانيا', en: 'إسبانيا' },
   { value: 'نيوزيلندا', ar: 'نيوزيلندا', en: 'نيوزيلندا' },
+  { value: 'ألمانيا', ar: 'ألمانيا', en: 'ألمانيا' },
+  { value: 'أيرلندا', ar: 'أيرلندا', en: 'أيرلندا' },
+  { value: 'ماليزيا', ar: 'ماليزيا', en: 'ماليزيا' },
+  { value: 'تركيا', ar: 'تركيا', en: 'تركيا' },
+  { value: 'هولندا', ar: 'هولندا', en: 'هولندا' },
+  { value: 'فرنسا', ar: 'فرنسا', en: 'فرنسا' },
 ];
 
 const UNI_FIELD_TABS = [
@@ -1331,9 +1337,19 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
             )}
 
             {/* Universities */}
-            {results.universities?.length > 0 && (
               <section style={{ marginTop: '64px' }}>
                 <SectionEyebrow n="II" en="الجامعات" ar="الجامعات" />
+                {results.universitiesRelaxed && results.universities?.length > 0 && (
+                  <div style={{ padding: '12px 16px', marginBottom: '16px', background: 'rgba(193,154,107,0.08)', border: '1px solid var(--accent)', fontFamily: 'var(--f-arabic)', fontSize: '14px', lineHeight: 1.8, color: 'var(--ink-soft)' }}>
+                    وسّعنا نطاق البحث ليشمل جامعات إضافية قد تناسبك، لأن معاييرك الأصلية لم تطابق جامعات كافية.
+                  </div>
+                )}
+                {(!results.universities || results.universities.length === 0) && (
+                  <div style={{ padding: '24px 16px', textAlign: 'center', fontFamily: 'var(--f-arabic)', fontSize: '15px', lineHeight: 1.8, color: 'var(--ink-soft)', borderTop: '1px solid var(--rule)' }}>
+                    لم نجد جامعات تطابق معاييرك بدقة. جرّب توسيع اختيار الدول أو مراجعة المعدل.
+                  </div>
+                )}
+                {results.universities?.length > 0 && (
                 <ol style={{ margin: 0, padding: 0, listStyle: 'none', borderTop: '1px solid var(--rule)' }}>
                   {results.universities.map((u, i) => {
                     const isExpanded = expandedUni === i;
@@ -1426,8 +1442,8 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                     );
                   })}
                 </ol>
+                )}
               </section>
-            )}
 
             {/* Requirements */}
             {results.requirements?.length > 0 && (
