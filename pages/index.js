@@ -154,6 +154,12 @@ const COUNTRIES = [
   { value: 'SouthKorea', ar: 'كوريا', arFull: 'كوريا الجنوبية', en: 'South Korea', code: 'KR', lat: '37°N' },
   { value: 'Spain', ar: 'إسبانيا', arFull: 'إسبانيا', en: 'Spain', code: 'ES', lat: '40°N' },
   { value: 'NewZealand', ar: 'نيوزيلندا', arFull: 'نيوزيلندا', en: 'New Zealand', code: 'NZ', lat: '41°S' },
+  { value: 'Germany', ar: 'ألمانيا', arFull: 'ألمانيا', en: 'Germany', code: 'DE', lat: '51°N' },
+  { value: 'Ireland', ar: 'أيرلندا', arFull: 'أيرلندا', en: 'Ireland', code: 'IE', lat: '53°N' },
+  { value: 'Malaysia', ar: 'ماليزيا', arFull: 'ماليزيا', en: 'Malaysia', code: 'MY', lat: '3°N' },
+  { value: 'Turkey', ar: 'تركيا', arFull: 'تركيا', en: 'Turkey', code: 'TR', lat: '39°N' },
+  { value: 'Netherlands', ar: 'هولندا', arFull: 'هولندا', en: 'Netherlands', code: 'NL', lat: '52°N' },
+  { value: 'France', ar: 'فرنسا', arFull: 'فرنسا', en: 'France', code: 'FR', lat: '46°N' },
 ];
 
 const PASSIONS_OPTIONS = [
