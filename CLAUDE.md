@@ -22,13 +22,19 @@ UPSTASH_REDIS_REST_URL
 UPSTASH_REDIS_REST_TOKEN
 ```
 
+Planned additions for Supabase integration (not yet active):
+```
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY   # server-side only, never exposed to browser
+```
+
 ## Architecture
 
 ### File Layout
 
 ```
 pages/
-  index.js       — Entire frontend (1500+ lines, all components in one file)
+  index.js       — Entire frontend (1700+ lines, all components in one file)
   _app.js        — Google Fonts preconnect + favicon link
   _document.js   — Custom Document: sets <html lang="ar" dir="rtl">
 api/
@@ -68,28 +74,61 @@ Vercel serverless function with two routes:
 **POST** — Main recommendation engine:
 1. Rate-limit check: 6 requests/day per IP via Upstash Ratelimit (uses `x-real-ip` first, then last `x-forwarded-for` entry)
 2. Input sanitization: `sanitizeText()` strips newlines and enforces 300-char max on free-text fields; `wrapUserInput()` wraps in XML delimiters for prompt injection defense
-3. Redis cache lookup by `profileKey(answers)` — full SHA-256 hash (prefix `rec4:`), cached 7 days
-4. If cache miss: `filterPrograms()` + `filterUniversities()` run deterministic matching, then 3 parallel AI calls fire:
-   - Call 1: profile analysis paragraph + program fit reasons
-   - Call 2: personalized university notes
-   - Call 3: 6-step action plan
+3. Redis cache lookup by `profileKey(answers)` — SHA-256 hash (prefix `rec5:`), cached 7 days
+4. If cache miss: `filterPrograms()` + `filterUniversities()` run deterministic matching, then **3 parallel AI calls** fire via `Promise.allSettled`:
+   - Call 1 (`claude-sonnet-4-5`): profile analysis paragraph + program fit reasons
+   - Call 2 (`claude-haiku-4-5-20251001`): personalized university notes
+   - Call 3 (`claude-haiku-4-5-20251001`): 6-step action plan
 5. Result assembled and stored in Redis
 
 **CORS** — restricted to `https://mustashar-alibtiath.vercel.app` via `setCorsHeaders()`. OPTIONS preflight returns 204.
 
 **University scoring** — `filterUniversities()` scores candidates by field match count, GPA delta from `minGpa`, and weather preference, then selects up to 10 with diversity constraints (max 4 per country, at least one Tier 1 and one Tier 3).
 
-**AI calls** — All use `claude-haiku-4-5-20251001`, `max_tokens: 2000`. Each prompt instructs the model to return raw JSON (no markdown fences). `callAI()` strips fences, finds `{...}` bounds, strips trailing commas, then `JSON.parse()`. Each AI call is wrapped in its own try/catch with a hardcoded Arabic fallback so a single failure doesn't abort the response.
+**AI calls** — `callAI({ system, user, model })` applies `cache_control: { type: 'ephemeral' }` to system blocks for Anthropic prompt caching. Each prompt builder (`buildProfileAnalysisPrompt`, `buildUniversityNotesPrompt`, `buildActionPlanPrompt`) returns `{ system, user }` — static instructions in `system` (cached), dynamic student data in `user`. `repairJSON()` handles malformed AI output: missing commas between array elements, truncated JSON, stray control characters.
+
+**CV extraction** — `extractCVFromBase64()` uses `claude-haiku-4-5-20251001` with a PDF `document` content block. Result cached in Redis for 30 days (`cv:{hash}`). `isCVPopulated()` validates the extraction before use. `cvStatus` (`'used' | 'failed' | 'empty' | 'none'`) is returned in the response and shown as a banner in the frontend.
 
 **GPA normalization** — `normalizeGpa(gpa, scale)` converts from 4/5/100 scales to a 4.0 equivalent for uniform comparisons against `university.minGpa`.
 
-### Data
+### Data (current — hardcoded, migration planned)
 
-`UNIVERSITIES` — ~125 entries across USA, UK, Canada, Australia, Japan, South Korea, Spain, New Zealand. Each entry has: `nameAr`, `nameEn`, `country` (Arabic), `city`, `tier` (1/2/3), `minGpa` (4.0 scale), `fields` (array of category keys), `email`, `weather`, `safety`, `muslimFriendly` (object), and optionally `englishGradOnly`.
+All data lives directly in `api/recommend.js` as JavaScript constants. **This is the next major area of work** — migrating to Supabase (see below).
 
-`SAUDI_PROGRAMS` — 11 government scholarship programs with `applicable` (academic level array), `fields`, links.
+`UNIVERSITIES` — 152 entries across USA, UK, Canada, Australia, Japan, South Korea, Spain, New Zealand. Each entry: `nameAr`, `nameEn`, `country` (Arabic), `city`, `tier` (1/2/3), `minGpa` (4.0 scale), `fields` (array of category keys), `email`, `weather`, `safety`, `muslimFriendly` (object with `halal`, `mosque`, `saudiCommunity`, `prayerRoom`), and optionally `englishGradOnly`.
 
-`PROGRAM_SCHEDULE` — Separate data structure for the landing page status board with open/close months and `getProgramStatus()` computing live open/closed/closing state from current month.
+`SAUDI_PROGRAMS` — 11 government scholarship programs. Fields: `name`, `description`, `eligibility`, `applicable` (academic level array), `fields`, `link`, `linkLabel`.
+
+`PROGRAM_SCHEDULE` — Landing page status board with open/close months. `getProgramStatus()` computes live open/closed/closing state from current month.
+
+## Planned: Supabase Database Integration
+
+The next major milestone is moving `UNIVERSITIES` and `SAUDI_PROGRAMS` out of the code file and into a Supabase PostgreSQL database. Goals:
+
+- Edit universities/programs via Supabase dashboard without code deployments
+- Replace JavaScript filtering loops in `filterUniversities()` with server-side SQL queries
+- Foundation for future user accounts and saved results
+
+**Planned table structure:**
+
+```sql
+-- universities
+id, name_ar, name_en, country, city, tier, min_gpa,
+fields (text[]), email, weather, safety,
+halal, mosque, saudi_community, prayer_room,
+english_grad_only (bool)
+
+-- saudi_programs
+id, name, description, eligibility,
+applicable (text[]), fields (text[]), link, link_label
+
+-- program_schedule
+id, program_name, open_month, close_month
+```
+
+**Migration approach:** The GET route in `api/recommend.js` fetches university data for the explorer — this is the first seam to replace with a Supabase query. `filterUniversities()` and `filterPrograms()` are the second seam.
+
+**Key constraint:** `SUPABASE_SERVICE_ROLE_KEY` must only be used server-side (in `api/recommend.js`). Never import `@supabase/supabase-js` with the service role key in `pages/index.js` — the frontend should continue fetching data through `/api/recommend`.
 
 ## Design Language
 
@@ -109,6 +148,6 @@ Vercel serverless function with two routes:
 
 The page is `dir="rtl"` on all screens (set in `_document.js` on `<html>` element). LTR elements (English text, numbers, codes) use `direction: 'ltr'` inline.
 
-**Focus rings** — `globals.css` defines `:focus-visible` outlines using `var(--accent)` for all interactive elements. Inline `outline: 'none'` was removed to restore keyboard accessibility.
+**Focus rings** — `globals.css` defines `:focus-visible` outlines using `var(--accent)` for all interactive elements.
 
 **Mobile** — `globals.css` includes `@media (max-width: 768px)` for `-webkit-tap-highlight-color: transparent` and `font-size: 16px` on inputs to prevent iOS zoom.
