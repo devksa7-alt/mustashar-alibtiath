@@ -618,7 +618,7 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
                   {/* On mobile, show tier/weather/safety inline */}
                   {isMobile && (
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', alignItems: 'center' }}>
-                      <span style={{ ...edMono, padding: '2px 6px', border: '1px solid var(--rule)', color: 'var(--ink)', fontSize: '9px', direction: 'ltr' }}>
+                      <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '10px', fontWeight: 500, padding: '2px 8px', border: '1px solid var(--rule)', color: 'var(--ink)' }}>
                         {TIER_LABELS[u.tier] || `الفئة ${u.tier}`}
                       </span>
                       {WEATHER_LABELS[u.weather] && (
@@ -645,7 +645,7 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
                 {/* Desktop: tier/weather/safety column */}
                 {!isMobile && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <span style={{ ...edMono, display: 'inline-block', padding: '3px 8px', border: '1px solid var(--rule)', color: 'var(--ink)', alignSelf: 'flex-start', direction: 'ltr' }}>
+                    <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '11px', fontWeight: 500, display: 'inline-block', padding: '3px 10px', border: '1px solid var(--rule)', color: 'var(--ink)', alignSelf: 'flex-start' }}>
                       {TIER_LABELS[u.tier] || `الفئة ${u.tier}`}
                     </span>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -1365,7 +1365,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                           {/* On mobile: inline tier/weather/safety + link */}
                           {isMobile && (
                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginTop: '6px' }}>
-                              {u.tier && <span style={{ ...edMono, padding: '2px 6px', border: '1px solid var(--rule)', direction: 'ltr', fontSize: '9px' }}>{u.tier}</span>}
+                              {u.tier && <span style={{ ...edNum, padding: '2px 8px', border: '1px solid var(--rule)', direction: 'ltr', fontSize: '12px', color: 'var(--ink)' }}>{u.tier}</span>}
                               {u.fitLevel && <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '11px', color: 'var(--ink-soft)' }}>{u.fitLevel}</span>}
                               {u.weather && (
                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--f-arabic)', fontSize: '11px', color: getWeatherColor(u.weather) }}>
@@ -1397,7 +1397,7 @@ function ResultsScreen({ loading, error, results, answers, onRetry, onReset, onP
                         {/* Desktop: tier/weather/safety column */}
                         {!isMobile && (
                           <div>
-                            {u.tier && <div style={{ ...edMono, display: 'inline-block', padding: '4px 10px', border: '1px solid var(--rule)', direction: 'ltr', marginBottom: '8px' }}>{u.tier}</div>}
+                            {u.tier && <div style={{ ...edNum, display: 'inline-block', padding: '4px 12px', border: '1px solid var(--rule)', direction: 'ltr', marginBottom: '8px', fontSize: '14px', color: 'var(--ink)' }}>{u.tier}</div>}
                             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '6px' }}>
                               {u.fitLevel && <span style={{ fontFamily: 'var(--f-arabic)', fontSize: '12px', color: 'var(--ink-soft)' }}><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', marginInlineEnd: '6px' }} />{u.fitLevel}</span>}
                               {u.weather && (
