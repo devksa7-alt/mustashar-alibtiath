@@ -16,7 +16,7 @@ function categorizeField(fieldText) {
   const t = (fieldText || '').toLowerCase();
   const categories = [];
   if (/eng|هندس|كهرب|ميكانيك|مدني|صناعي|بترول|نفط|كيميائ|طيران|بيئة|معمار|عمارة/.test(t)) categories.push('engineering');
-  if (/med|طب|صحة|صيدل|تمريض|علاج|dental|أسنان|بصر|nurs|pharma|physiotherap|علوم صحية/.test(t)) categories.push('medical');
+  if (/med|طب|صحة|صيدل|تمريض|علاج|dental|أسنان|بصر|nurs|pharma|physiotherap|علوم صحية|مختبر|تحاليل|تحليل|lab|laboratory|clinical/.test(t)) categories.push('medical');
   if (/business|إدارة|أعمال|مال|محاسب|اقتصاد|تسويق|finance|mba|marketing|تمويل|موارد بشرية/.test(t)) categories.push('business');
   if (/comput|حاسب|برمجة|software|ذكاء اصطناعي|ai|data|بيانات|سيبراني|cyber|شبكات|تقنية معلومات|information tech/.test(t)) categories.push('cs');
   if (/law|قانون|حقوق|شريعة|legal/.test(t)) categories.push('law');
@@ -281,10 +281,10 @@ const UNIVERSITIES = [
 
   // ==================== SOUTH KOREA (13) ====================
   // Tier 1 (4)
-  { nameAr: 'جامعة سيول الوطنية', nameEn: 'Seoul National University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 1, minGpa: 3.6, fields: ['engineering', 'business', 'medical', 'science'], email: 'snuadmit@snu.ac.kr', englishGradOnly: true, weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة سيول الوطنية', nameEn: 'Seoul National University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 1, minGpa: 3.6, fields: ['engineering', 'business', 'medical', 'science'], email: 'snuadmit@snu.ac.kr', englishGradOnly: true, weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
   { nameAr: 'كايست', nameEn: 'KAIST', country: 'كوريا الجنوبية', city: 'Daejeon', tier: 1, minGpa: 3.5, fields: ['engineering', 'cs', 'science'], email: 'admission@kaist.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'yes' } },
-  { nameAr: 'جامعة يونسي', nameEn: 'Yonsei University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 1, minGpa: 3.5, fields: ['business', 'engineering', 'medical', 'social'], email: 'admission@yonsei.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
-  { nameAr: 'جامعة كوريا', nameEn: 'Korea University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 1, minGpa: 3.4, fields: ['business', 'engineering', 'social', 'law'], email: 'admissions@korea.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة يونسي', nameEn: 'Yonsei University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 1, minGpa: 3.5, fields: ['business', 'engineering', 'medical', 'social'], email: 'admission@yonsei.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة كوريا', nameEn: 'Korea University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 1, minGpa: 3.4, fields: ['business', 'engineering', 'social', 'law'], email: 'admissions@korea.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
   // Tier 2 (5)
   { nameAr: 'بوستيك', nameEn: 'POSTECH', country: 'كوريا الجنوبية', city: 'Pohang', tier: 2, minGpa: 3.4, fields: ['engineering', 'science', 'cs'], email: 'admission@postech.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } },
   { nameAr: 'جامعة سونغ كيون كوان', nameEn: 'Sungkyunkwan University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 2, minGpa: 3.3, fields: ['engineering', 'business', 'medical'], email: 'admissions@skku.edu', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
@@ -327,7 +327,107 @@ const UNIVERSITIES = [
   // Tier 3 (3)
   { nameAr: 'جامعة لينكولن', nameEn: 'Lincoln University', country: 'نيوزيلندا', city: 'Christchurch', tier: 3, minGpa: 2.7, fields: ['business', 'science'], email: 'international@lincoln.ac.nz', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
   { nameAr: 'يونيتك', nameEn: 'Unitec Institute of Technology', country: 'نيوزيلندا', city: 'Auckland', tier: 3, minGpa: 2.7, fields: ['engineering', 'business', 'cs'], email: 'international@unitec.ac.nz', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
-  { nameAr: 'جامعة أوكلاند للتكنولوجيا ماناواتو', nameEn: 'Universal College of Learning (UCOL)', country: 'نيوزيلندا', city: 'Palmerston North', tier: 3, minGpa: 2.7, fields: ['business', 'engineering'], email: 'international@ucol.ac.nz', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } }
+  { nameAr: 'جامعة أوكلاند للتكنولوجيا ماناواتو', nameEn: 'Universal College of Learning (UCOL)', country: 'نيوزيلندا', city: 'Palmerston North', tier: 3, minGpa: 2.7, fields: ['business', 'engineering'], email: 'international@ucol.ac.nz', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  // ── Existing country expansions ──
+  // USA additions
+  { nameAr: 'جامعة سينسيناتي', nameEn: 'University of Cincinnati', country: 'الولايات المتحدة', city: 'Cincinnati, OH', tier: 2, minGpa: 3.0, fields: ['engineering', 'medical', 'business', 'cs'], email: 'admissions@uc.edu', weather: 'mixed', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة بافالو', nameEn: 'University at Buffalo (SUNY)', country: 'الولايات المتحدة', city: 'Buffalo, NY', tier: 2, minGpa: 3.1, fields: ['engineering', 'business', 'medical', 'cs'], email: 'ub-admissions@buffalo.edu', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ولاية آيوا', nameEn: 'Iowa State University', country: 'الولايات المتحدة', city: 'Ames, IA', tier: 2, minGpa: 3.0, fields: ['engineering', 'science', 'business', 'cs'], email: 'admissions@iastate.edu', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ألاباما', nameEn: 'University of Alabama', country: 'الولايات المتحدة', city: 'Tuscaloosa, AL', tier: 3, minGpa: 2.8, fields: ['engineering', 'business', 'medical', 'social'], email: 'admissions@ua.edu', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة تكساس أرلنغتون', nameEn: 'University of Texas at Arlington', country: 'الولايات المتحدة', city: 'Arlington, TX', tier: 3, minGpa: 2.8, fields: ['engineering', 'cs', 'business', 'science'], email: 'admissions@uta.edu', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة واين ستيت', nameEn: 'Wayne State University', country: 'الولايات المتحدة', city: 'Detroit, MI', tier: 3, minGpa: 2.7, fields: ['engineering', 'medical', 'business', 'education'], email: 'admissions@wayne.edu', weather: 'cold', safety: 'moderate', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة تيمبل', nameEn: 'Temple University', country: 'الولايات المتحدة', city: 'Philadelphia, PA', tier: 3, minGpa: 2.8, fields: ['business', 'engineering', 'medical', 'arts'], email: 'tuadm@temple.edu', weather: 'mixed', safety: 'moderate', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة نيفادا لاس فيغاس', nameEn: 'University of Nevada, Las Vegas', country: 'الولايات المتحدة', city: 'Las Vegas, NV', tier: 3, minGpa: 2.7, fields: ['business', 'engineering', 'cs', 'social'], email: 'admissions@unlv.edu', weather: 'hot', safety: 'moderate', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  // UK additions
+  { nameAr: 'جامعة نيوكاسل', nameEn: 'Newcastle University', country: 'المملكة المتحدة', city: 'Newcastle, England', tier: 2, minGpa: 3.2, fields: ['engineering', 'medical', 'business', 'cs'], email: 'undergraduate.admissions@ncl.ac.uk', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة لوبورو', nameEn: 'Loughborough University', country: 'المملكة المتحدة', city: 'Loughborough, England', tier: 2, minGpa: 3.3, fields: ['engineering', 'business', 'cs', 'science'], email: 'admissions@lboro.ac.uk', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ليستر', nameEn: 'University of Leicester', country: 'المملكة المتحدة', city: 'Leicester, England', tier: 2, minGpa: 3.1, fields: ['business', 'medical', 'social', 'science'], email: 'admissions@le.ac.uk', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ريدنج', nameEn: 'University of Reading', country: 'المملكة المتحدة', city: 'Reading, England', tier: 2, minGpa: 3.1, fields: ['business', 'science', 'social', 'arts'], email: 'student.recruitment@reading.ac.uk', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ساسكس', nameEn: 'University of Sussex', country: 'المملكة المتحدة', city: 'Brighton, England', tier: 3, minGpa: 2.9, fields: ['social', 'science', 'business', 'arts'], email: 'ug.enquiries@sussex.ac.uk', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة برونيل لندن', nameEn: 'Brunel University London', country: 'المملكة المتحدة', city: 'London, England', tier: 3, minGpa: 2.9, fields: ['engineering', 'cs', 'business', 'social'], email: 'admissions@brunel.ac.uk', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  // Canada additions
+  { nameAr: 'جامعة دالهاوزي', nameEn: 'Dalhousie University', country: 'كندا', city: 'Halifax, NS', tier: 2, minGpa: 3.2, fields: ['engineering', 'medical', 'business', 'science'], email: 'dal-international@dal.ca', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة تورنتو متروبوليتان', nameEn: 'Toronto Metropolitan University', country: 'كندا', city: 'Toronto, ON', tier: 3, minGpa: 2.8, fields: ['engineering', 'business', 'cs', 'arts'], email: 'international@torontomu.ca', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة بروك', nameEn: 'Brock University', country: 'كندا', city: 'St. Catharines, ON', tier: 3, minGpa: 2.7, fields: ['business', 'education', 'social', 'science'], email: 'international@brocku.ca', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة شمال بريتش كولومبيا', nameEn: 'University of Northern British Columbia', country: 'كندا', city: 'Prince George, BC', tier: 3, minGpa: 2.6, fields: ['engineering', 'business', 'science', 'education'], email: 'international@unbc.ca', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  { nameAr: 'جامعة كيب بريتون', nameEn: 'Cape Breton University', country: 'كندا', city: 'Sydney, NS', tier: 3, minGpa: 2.5, fields: ['business', 'engineering', 'education'], email: 'international@cbu.ca', weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  // Australia additions
+  { nameAr: 'جامعة تشارلز داروين', nameEn: 'Charles Darwin University', country: 'أستراليا', city: 'Darwin, NT', tier: 3, minGpa: 2.6, fields: ['business', 'engineering', 'education', 'science'], email: 'international@cdu.edu.au', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  { nameAr: 'جامعة مردوك', nameEn: 'Murdoch University', country: 'أستراليا', city: 'Perth, WA', tier: 3, minGpa: 2.7, fields: ['business', 'science', 'medical', 'social'], email: 'international@murdoch.edu.au', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة إيدث كوان', nameEn: 'Edith Cowan University', country: 'أستراليا', city: 'Perth, WA', tier: 3, minGpa: 2.6, fields: ['engineering', 'business', 'cs', 'arts'], email: 'international@ecu.edu.au', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة صنشاين كوست', nameEn: 'University of the Sunshine Coast', country: 'أستراليا', city: 'Sippy Downs, QLD', tier: 3, minGpa: 2.6, fields: ['business', 'science', 'education', 'social'], email: 'international@usc.edu.au', weather: 'hot', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  // Japan additions
+  { nameAr: 'جامعة تسوكوبا', nameEn: 'University of Tsukuba', country: 'اليابان', city: 'Tsukuba', tier: 2, minGpa: 3.2, fields: ['engineering', 'science', 'business', 'social'], email: 'kokusai@un.tsukuba.ac.jp', englishGradOnly: true, weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة هوكايدو', nameEn: 'Hokkaido University', country: 'اليابان', city: 'Sapporo', tier: 2, minGpa: 3.2, fields: ['engineering', 'science', 'medical'], email: 'oia@general.hokudai.ac.jp', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة تشيبا', nameEn: 'Chiba University', country: 'اليابان', city: 'Chiba', tier: 3, minGpa: 2.9, fields: ['engineering', 'medical', 'science'], email: 'intl-ex@chiba-u.jp', englishGradOnly: true, weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  // South Korea additions
+  { nameAr: 'جامعة أجو', nameEn: 'Ajou University', country: 'كوريا الجنوبية', city: 'Suwon', tier: 3, minGpa: 2.9, fields: ['engineering', 'medical', 'business', 'cs'], email: 'intl@ajou.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  { nameAr: 'جامعة سيجونج', nameEn: 'Sejong University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 3, minGpa: 2.8, fields: ['business', 'cs', 'arts', 'engineering'], email: 'oia@sejong.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  { nameAr: 'جامعة كوكمين', nameEn: 'Kookmin University', country: 'كوريا الجنوبية', city: 'Seoul', tier: 3, minGpa: 2.7, fields: ['business', 'engineering', 'arts', 'cs'], email: 'international@kookmin.ac.kr', weather: 'mixed', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  // Spain additions
+  { nameAr: 'جامعة إشبيلية', nameEn: 'University of Seville', country: 'إسبانيا', city: 'Seville', tier: 3, minGpa: 2.8, fields: ['engineering', 'business', 'law', 'arts'], email: 'relint@us.es', englishGradOnly: true, weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  { nameAr: 'جامعة سرقسطة', nameEn: 'University of Zaragoza', country: 'إسبانيا', city: 'Zaragoza', tier: 3, minGpa: 2.8, fields: ['engineering', 'science', 'business'], email: 'internacional@unizar.es', englishGradOnly: true, weather: 'mixed', safety: 'safe', muslimFriendly: { halal: 'limited', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  { nameAr: 'جامعة فالنسيا', nameEn: 'University of Valencia', country: 'إسبانيا', city: 'Valencia', tier: 3, minGpa: 2.9, fields: ['medical', 'science', 'business', 'social'], email: 'opii@uv.es', englishGradOnly: true, weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  // New Zealand additions
+  { nameAr: 'معهد أوتاغو للتقنية', nameEn: 'Otago Polytechnic', country: 'نيوزيلندا', city: 'Dunedin', tier: 3, minGpa: 2.5, fields: ['engineering', 'business', 'arts', 'education'], email: 'international@op.ac.nz', weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  { nameAr: 'معهد تكنولوجيا شرق نيوزيلندا', nameEn: 'Eastern Institute of Technology (EIT)', country: 'نيوزيلندا', city: 'Napier', tier: 3, minGpa: 2.5, fields: ['business', 'science', 'education', 'arts'], email: 'international@eit.ac.nz', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'unknown' } },
+  // ── New countries ──
+  // Germany
+  { nameAr: 'الجامعة التقنية ميونيخ', nameEn: 'Technical University of Munich (TUM)', country: 'ألمانيا', city: 'Munich', tier: 1, minGpa: 3.5, fields: ['engineering', 'cs', 'science', 'business'], email: 'international@tum.de', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة لودفيغ ماكسيميليان ميونيخ', nameEn: 'Ludwig Maximilian University of Munich (LMU)', country: 'ألمانيا', city: 'Munich', tier: 1, minGpa: 3.5, fields: ['medical', 'science', 'law', 'social'], email: 'international@lmu.de', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة هايدلبرغ', nameEn: 'Heidelberg University', country: 'ألمانيا', city: 'Heidelberg', tier: 1, minGpa: 3.5, fields: ['medical', 'science', 'social', 'law'], email: 'international@uni-heidelberg.de', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة آخن التقنية', nameEn: 'RWTH Aachen University', country: 'ألمانيا', city: 'Aachen', tier: 1, minGpa: 3.4, fields: ['engineering', 'cs', 'science', 'business'], email: 'international@rwth-aachen.de', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'الجامعة التقنية برلين', nameEn: 'Technical University of Berlin (TU Berlin)', country: 'ألمانيا', city: 'Berlin', tier: 1, minGpa: 3.4, fields: ['engineering', 'cs', 'business', 'arts'], email: 'international@tu-berlin.de', englishGradOnly: true, weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة هومبولت برلين', nameEn: 'Humboldt University of Berlin', country: 'ألمانيا', city: 'Berlin', tier: 2, minGpa: 3.3, fields: ['science', 'law', 'social', 'arts'], email: 'international@hu-berlin.de', englishGradOnly: true, weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة فرايبورغ', nameEn: 'University of Freiburg', country: 'ألمانيا', city: 'Freiburg', tier: 2, minGpa: 3.2, fields: ['medical', 'science', 'law', 'education'], email: 'international@uni-freiburg.de', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة غوتنغن', nameEn: 'University of Göttingen', country: 'ألمانيا', city: 'Göttingen', tier: 2, minGpa: 3.2, fields: ['science', 'medical', 'social', 'law'], email: 'international@uni-goettingen.de', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'limited', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة هامبورغ', nameEn: 'University of Hamburg', country: 'ألمانيا', city: 'Hamburg', tier: 2, minGpa: 3.0, fields: ['business', 'law', 'social', 'science'], email: 'international@uni-hamburg.de', englishGradOnly: true, weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'الجامعة التقنية درسدن', nameEn: 'TU Dresden', country: 'ألمانيا', city: 'Dresden', tier: 2, minGpa: 3.0, fields: ['engineering', 'cs', 'science', 'business'], email: 'international@tu-dresden.de', englishGradOnly: true, weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'moderate', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  // Ireland
+  { nameAr: 'كلية ترينيتي دبلن', nameEn: 'Trinity College Dublin (TCD)', country: 'أيرلندا', city: 'Dublin', tier: 1, minGpa: 3.5, fields: ['law', 'business', 'science', 'arts', 'social'], email: 'international@tcd.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة كولدج دبلن', nameEn: 'University College Dublin (UCD)', country: 'أيرلندا', city: 'Dublin', tier: 1, minGpa: 3.4, fields: ['business', 'engineering', 'medical', 'law', 'social'], email: 'international@ucd.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة غالواي', nameEn: 'University of Galway', country: 'أيرلندا', city: 'Galway', tier: 2, minGpa: 3.2, fields: ['medical', 'science', 'law', 'engineering', 'arts'], email: 'international@universityofgalway.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة كولدج كورك', nameEn: 'University College Cork (UCC)', country: 'أيرلندا', city: 'Cork', tier: 2, minGpa: 3.1, fields: ['medical', 'science', 'business', 'law', 'arts'], email: 'international@ucc.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة دبلن سيتي', nameEn: 'Dublin City University (DCU)', country: 'أيرلندا', city: 'Dublin', tier: 2, minGpa: 3.0, fields: ['engineering', 'cs', 'business', 'education', 'social'], email: 'international.office@dcu.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة مينوث', nameEn: 'Maynooth University', country: 'أيرلندا', city: 'Maynooth', tier: 2, minGpa: 3.0, fields: ['social', 'science', 'arts', 'education', 'business'], email: 'international.office@mu.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ليميريك', nameEn: 'University of Limerick (UL)', country: 'أيرلندا', city: 'Limerick', tier: 2, minGpa: 2.9, fields: ['engineering', 'business', 'science', 'education'], email: 'international@ul.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'الجامعة التكنولوجية دبلن', nameEn: 'Technological University Dublin (TU Dublin)', country: 'أيرلندا', city: 'Dublin', tier: 3, minGpa: 2.7, fields: ['engineering', 'business', 'cs', 'arts'], email: 'international@tudublin.ie', weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  // Malaysia
+  { nameAr: 'جامعة ملايا', nameEn: 'University of Malaya (UM)', country: 'ماليزيا', city: 'Kuala Lumpur', tier: 1, minGpa: 3.4, fields: ['engineering', 'medical', 'business', 'law', 'science'], email: 'international@um.edu.my', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة سينز ماليزيا', nameEn: 'Universiti Sains Malaysia (USM)', country: 'ماليزيا', city: 'Penang', tier: 1, minGpa: 3.3, fields: ['science', 'engineering', 'medical', 'social'], email: 'international@usm.my', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'الجامعة الوطنية الماليزية', nameEn: 'Universiti Kebangsaan Malaysia (UKM)', country: 'ماليزيا', city: 'Bangi', tier: 2, minGpa: 3.2, fields: ['medical', 'science', 'social', 'law', 'education'], email: 'international@ukm.edu.my', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة بوترا ماليزيا', nameEn: 'Universiti Putra Malaysia (UPM)', country: 'ماليزيا', city: 'Serdang', tier: 2, minGpa: 3.1, fields: ['engineering', 'science', 'education', 'business'], email: 'international@upm.edu.my', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة تكنولوجي ماليزيا', nameEn: 'Universiti Teknologi Malaysia (UTM)', country: 'ماليزيا', city: 'Johor Bahru', tier: 2, minGpa: 3.1, fields: ['engineering', 'cs', 'science'], email: 'international@utm.my', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'الجامعة الإسلامية الدولية ماليزيا', nameEn: 'International Islamic University Malaysia (IIUM)', country: 'ماليزيا', city: 'Gombak', tier: 2, minGpa: 3.0, fields: ['law', 'engineering', 'business', 'medical', 'education'], email: 'admission@iium.edu.my', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة موناش ماليزيا', nameEn: 'Monash University Malaysia', country: 'ماليزيا', city: 'Subang Jaya', tier: 2, minGpa: 3.2, fields: ['engineering', 'business', 'cs', 'arts', 'science'], email: 'international.malaysia@monash.edu', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة نوتنغهام ماليزيا', nameEn: 'University of Nottingham Malaysia', country: 'ماليزيا', city: 'Semenyih', tier: 2, minGpa: 3.0, fields: ['engineering', 'business', 'science', 'law'], email: 'malaysia-enquiries@nottingham.edu.my', weather: 'hot', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  // Turkey
+  { nameAr: 'جامعة كوتش', nameEn: 'Koç University', country: 'تركيا', city: 'Istanbul', tier: 1, minGpa: 3.5, fields: ['business', 'engineering', 'law', 'medical', 'social'], email: 'admissions@ku.edu.tr', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة صبانجي', nameEn: 'Sabancı University', country: 'تركيا', city: 'Istanbul', tier: 1, minGpa: 3.5, fields: ['engineering', 'cs', 'business', 'arts', 'social'], email: 'admissions@sabanciuniv.edu', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة بيلكنت', nameEn: 'Bilkent University', country: 'تركيا', city: 'Ankara', tier: 1, minGpa: 3.4, fields: ['engineering', 'cs', 'business', 'arts', 'law'], email: 'admissions@bilkent.edu.tr', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة بوغازيتشي', nameEn: 'Boğaziçi University', country: 'تركيا', city: 'Istanbul', tier: 1, minGpa: 3.4, fields: ['engineering', 'social', 'science', 'education'], email: 'international@bogazici.edu.tr', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة الشرق الأوسط التقنية', nameEn: 'Middle East Technical University (METU)', country: 'تركيا', city: 'Ankara', tier: 1, minGpa: 3.4, fields: ['engineering', 'cs', 'science', 'business', 'arts'], email: 'intl-admissions@metu.edu.tr', weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة إسطنبول التقنية', nameEn: 'Istanbul Technical University', country: 'تركيا', city: 'Istanbul', tier: 2, minGpa: 3.2, fields: ['engineering', 'cs', 'science', 'arts'], email: 'international@itu.edu.tr', weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة أنقرة', nameEn: 'Ankara University', country: 'تركيا', city: 'Ankara', tier: 2, minGpa: 3.0, fields: ['medical', 'law', 'science', 'social', 'education'], email: 'international@ankara.edu.tr', englishGradOnly: true, weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة حاجة تبه', nameEn: 'Hacettepe University', country: 'تركيا', city: 'Ankara', tier: 2, minGpa: 3.1, fields: ['medical', 'engineering', 'science', 'education', 'social'], email: 'international@hacettepe.edu.tr', englishGradOnly: true, weather: 'cold', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'on_campus', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  // Netherlands
+  { nameAr: 'جامعة دلفت التقنية', nameEn: 'Delft University of Technology (TU Delft)', country: 'هولندا', city: 'Delft', tier: 1, minGpa: 3.5, fields: ['engineering', 'cs', 'science', 'arts'], email: 'international-office@tudelft.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة أمستردام', nameEn: 'University of Amsterdam (UvA)', country: 'هولندا', city: 'Amsterdam', tier: 1, minGpa: 3.4, fields: ['business', 'law', 'social', 'science', 'arts'], email: 'international-office@uva.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ليدن', nameEn: 'Leiden University', country: 'هولندا', city: 'Leiden', tier: 1, minGpa: 3.4, fields: ['law', 'social', 'science', 'medical', 'arts'], email: 'studeenadviseur@leidenuniv.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة أوتريخت', nameEn: 'Utrecht University', country: 'هولندا', city: 'Utrecht', tier: 1, minGpa: 3.3, fields: ['science', 'medical', 'law', 'social', 'education'], email: 'internationalstudents@uu.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة آيندهوفن التقنية', nameEn: 'Eindhoven University of Technology (TU/e)', country: 'هولندا', city: 'Eindhoven', tier: 2, minGpa: 3.3, fields: ['engineering', 'cs', 'science', 'business'], email: 'international@tue.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة غرونينغن', nameEn: 'University of Groningen (RUG)', country: 'هولندا', city: 'Groningen', tier: 2, minGpa: 3.2, fields: ['science', 'business', 'medical', 'law', 'social'], email: 'international@rug.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة واخينينغن', nameEn: 'Wageningen University & Research (WUR)', country: 'هولندا', city: 'Wageningen', tier: 2, minGpa: 3.2, fields: ['science', 'engineering', 'business', 'social'], email: 'international.students@wur.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'limited', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة إيراسموس روتردام', nameEn: 'Erasmus University Rotterdam (EUR)', country: 'هولندا', city: 'Rotterdam', tier: 2, minGpa: 3.2, fields: ['business', 'law', 'medical', 'social'], email: 'international@eur.nl', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  // France
+  { nameAr: 'جامعة السوربون', nameEn: 'Sorbonne University', country: 'فرنسا', city: 'Paris', tier: 1, minGpa: 3.5, fields: ['science', 'medical', 'arts', 'law', 'social'], email: 'international@sorbonne-universite.fr', englishGradOnly: true, weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة PSL باريس', nameEn: 'Université PSL (Paris Sciences & Lettres)', country: 'فرنسا', city: 'Paris', tier: 1, minGpa: 3.6, fields: ['science', 'engineering', 'arts', 'social', 'business'], email: 'international@psl.eu', englishGradOnly: true, weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة باريس ساكلي', nameEn: 'Université Paris-Saclay', country: 'فرنسا', city: 'Saclay', tier: 1, minGpa: 3.5, fields: ['engineering', 'science', 'cs', 'medical'], email: 'international@universite-paris-saclay.fr', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'معهد العلوم السياسية باريس', nameEn: 'Sciences Po Paris', country: 'فرنسا', city: 'Paris', tier: 1, minGpa: 3.5, fields: ['law', 'social', 'business', 'arts'], email: 'international@sciencespo.fr', englishGradOnly: true, weather: 'moderate', safety: 'safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'large', prayerRoom: 'yes' } },
+  { nameAr: 'المدرسة العليا ليون', nameEn: 'ENS de Lyon', country: 'فرنسا', city: 'Lyon', tier: 1, minGpa: 3.6, fields: ['science', 'social', 'arts', 'education'], email: 'relations-internationales@ens-lyon.fr', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة تولوز', nameEn: 'University of Toulouse III – Paul Sabatier', country: 'فرنسا', city: 'Toulouse', tier: 2, minGpa: 3.2, fields: ['engineering', 'science', 'medical', 'cs'], email: 'international@univ-tlse3.fr', englishGradOnly: true, weather: 'moderate', safety: 'very_safe', muslimFriendly: { halal: 'easy', mosque: 'nearby', saudiCommunity: 'medium', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة غرونوبل ألب', nameEn: 'Université Grenoble Alpes', country: 'فرنسا', city: 'Grenoble', tier: 2, minGpa: 3.1, fields: ['engineering', 'science', 'cs', 'social'], email: 'international@univ-grenoble-alpes.fr', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } },
+  { nameAr: 'جامعة ستراسبورغ', nameEn: 'University of Strasbourg', country: 'فرنسا', city: 'Strasbourg', tier: 2, minGpa: 3.1, fields: ['science', 'law', 'medical', 'social', 'arts'], email: 'international@unistra.fr', englishGradOnly: true, weather: 'cold', safety: 'very_safe', muslimFriendly: { halal: 'moderate', mosque: 'nearby', saudiCommunity: 'small', prayerRoom: 'yes' } }
 ];
 
 // ============ HELPER FUNCTIONS ============
@@ -397,6 +497,12 @@ function parseCountries(countriesInput) {
   if (/korea|كوري|southkorea/.test(t)) countries.push('كوريا الجنوبية');
   if (/spain|إسبان|اسبان/.test(t)) countries.push('إسبانيا');
   if (/new zealand|نيوزيل|newzealand/.test(t)) countries.push('نيوزيلندا');
+  if (/germany|ألمان|المان|german/.test(t)) countries.push('ألمانيا');
+  if (/ireland|أيرلند|ايرلند|irish/.test(t)) countries.push('أيرلندا');
+  if (/malaysia|مالي|ماليز/.test(t)) countries.push('ماليزيا');
+  if (/turkey|türk|تركي|turk/.test(t)) countries.push('تركيا');
+  if (/netherland|هولند|dutch|holland/.test(t)) countries.push('هولندا');
+  if (/france|فرنس|french/.test(t)) countries.push('فرنسا');
   return countries.length > 0 ? countries : ['الولايات المتحدة', 'المملكة المتحدة', 'كندا', 'أستراليا'];
 }
 
@@ -407,15 +513,38 @@ function filterUniversities(answers) {
   const isUndergrad = answers.degreeLevel === 'bachelor';
   const weatherPref = answers.weatherPreference || 'no_preference';
 
-  const candidates = UNIVERSITIES.filter(u => {
-    if (!preferredCountries.includes(u.country)) return false;
-    if (fieldCats.includes('general')) return true;
-    const hasFieldMatch = u.fields.includes('all') || fieldCats.some(fc => u.fields.includes(fc));
-    if (!hasFieldMatch) return false;
-    if (u.englishGradOnly && isUndergrad) return false;
-    if (studentGpa4 < u.minGpa - 0.3) return false;
-    return true;
-  });
+  const isGeneral = fieldCats.includes('general');
+
+  function runFilter(opts = {}) {
+    const skipGpa = opts.skipGpa || false;
+    const skipDegree = opts.skipDegree || false;
+    const countries = opts.countries || preferredCountries;
+    return UNIVERSITIES.filter(u => {
+      if (!countries.includes(u.country)) return false;
+      if (!isGeneral) {
+        const hasFieldMatch = u.fields.includes('all') || fieldCats.some(fc => u.fields.includes(fc));
+        if (!hasFieldMatch) return false;
+      }
+      if (!skipDegree && u.englishGradOnly && isUndergrad) return false;
+      if (!skipGpa && studentGpa4 < u.minGpa - 0.3) return false;
+      return true;
+    });
+  }
+
+  let candidates = runFilter();
+  let relaxed = false;
+
+  if (candidates.length === 0) {
+    candidates = runFilter({ skipGpa: true });
+    relaxed = true;
+  }
+  if (candidates.length === 0) {
+    candidates = runFilter({ skipGpa: true, skipDegree: true });
+  }
+  if (candidates.length === 0) {
+    const defaultCountries = ['الولايات المتحدة', 'المملكة المتحدة', 'كندا', 'أستراليا'];
+    candidates = runFilter({ skipGpa: true, skipDegree: true, countries: defaultCountries });
+  }
 
   const weatherMap = { hot: 'hot', moderate: 'moderate', cold: 'cold' };
   const prefWeather = weatherMap[weatherPref];
@@ -462,7 +591,7 @@ function filterUniversities(answers) {
     if (safety) { selected.pop(); selected.push(safety); }
   }
 
-  return selected.map(u => ({
+  const list = selected.map(u => ({
     nameAr: u.nameAr,
     nameEn: u.nameEn,
     country: u.country,
@@ -478,6 +607,7 @@ function filterUniversities(answers) {
     muslimFriendly: muslimFriendlyLabels(u.muslimFriendly),
     englishGradOnly: u.englishGradOnly || false
   }));
+  return { list, relaxed };
 }
 
 function filterPrograms(answers) {
@@ -981,7 +1111,7 @@ export default async function handler(req, res) {
     }
 
     const programs = filterPrograms(answers);
-    const universities = filterUniversities(answers);
+    const { list: universities, relaxed: universitiesRelaxed } = filterUniversities(answers);
     const requirements = getRequirements(answers);
     const studentGpa4 = normalizeGpa(answers.gpa, answers.gpaScale);
 
@@ -1028,18 +1158,20 @@ export default async function handler(req, res) {
       return { ...u, notes: match?.note || '' };
     });
 
-    const hasJapanSpainKorea = universities.some(u =>
-      ['اليابان', 'كوريا الجنوبية', 'إسبانيا'].includes(u.country) && u.englishGradOnly
+    const nonEnglishCountries = ['اليابان', 'كوريا الجنوبية', 'إسبانيا', 'ألمانيا', 'فرنسا', 'هولندا'];
+    const hasNonEnglishGradOnly = universities.some(u =>
+      nonEnglishCountries.includes(u.country) && u.englishGradOnly
     );
     let languageWarning = null;
-    if (hasJapanSpainKorea && answers.degreeLevel === 'bachelor') {
-      languageWarning = 'تنبيه: بعض الجامعات في اليابان وكوريا الجنوبية وإسبانيا تقدم برامجها باللغة الإنجليزية في مرحلة الدراسات العليا فقط. قد تحتاج لدراسة لغة البلد للمرحلة الجامعية.';
+    if (hasNonEnglishGradOnly && answers.degreeLevel === 'bachelor') {
+      languageWarning = 'تنبيه: بعض الجامعات في دول غير ناطقة بالإنجليزية تقدم برامجها باللغة الإنجليزية في مرحلة الدراسات العليا فقط. قد تحتاج لدراسة لغة البلد للمرحلة الجامعية.';
     }
 
     const finalResult = {
       analysis: aiAnalysis.analysis || 'ملفك يحمل إمكانيات جيدة. راجع التوصيات أدناه للخطوات التالية.',
       programs: programsWithFit,
       universities: universitiesWithNotes,
+      universitiesRelaxed,
       requirements,
       nextSteps: aiPlan.nextSteps || [],
       languageWarning,
