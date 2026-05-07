@@ -226,7 +226,7 @@ function getStatusStyle(status) {
   switch (status) {
     case 'open': return { label: 'مفتوح', color: '#2d5016', bg: 'rgba(45,80,22,0.12)' };
     case 'closing': return { label: 'يغلق قريباً', color: '#8b5e00', bg: 'rgba(139,94,0,0.12)' };
-    case 'closed': return { label: 'مغلق', color: 'var(--ink-faint)', bg: 'rgba(20,35,59,0.06)' };
+    case 'closed': return { label: 'مغلق', color: '#fff', bg: '#c0392b' };
     case 'varies': return { label: 'يتفاوت', color: 'var(--accent)', bg: 'rgba(182,135,58,0.12)' };
     case 'ongoing': return { label: 'مستمر', color: '#2d5016', bg: 'rgba(45,80,22,0.12)' };
     default: return { label: '', color: 'var(--ink-faint)', bg: 'transparent' };
@@ -417,7 +417,7 @@ function ProgramBoard({ programFilter, setProgramFilter, isMobile }) {
           const left = isMobile || i % 2 === 0;
           const top = isMobile ? i === 0 : i < 2;
           return (
-            <article key={prog.id} style={{ padding: '28px', paddingInlineStart: left ? 0 : '28px', paddingInlineEnd: left ? '28px' : 0, borderTop: top ? 'none' : '1px solid var(--hairline)', borderInlineStart: left ? 'none' : '1px solid var(--hairline)', opacity: status === 'closed' ? 0.5 : 1, background: status === 'closed' ? 'var(--paper-2)' : 'transparent', transition: 'opacity .3s' }}>
+            <article key={prog.id} style={{ padding: '28px', paddingInlineStart: left ? 0 : '28px', paddingInlineEnd: left ? '28px' : 0, borderTop: top ? 'none' : '1px solid var(--hairline)', borderInlineStart: left ? 'none' : '1px solid var(--hairline)', background: 'transparent' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
                 <span style={{ ...edNum, fontSize: '40px', lineHeight: 0.9, color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400, direction: 'ltr' }}>
                   №{String(i + 1).padStart(2, '0')}
