@@ -512,6 +512,24 @@ function ProgramBoard({ programFilter, setProgramFilter, isMobile }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME: UNIVERSITY EXPLORER
 // ═══════════════════════════════════════════════════════════════
+// Map Arabic country names to campus photo filenames. Missing entries fall back to a gradient placeholder.
+const COUNTRY_IMAGES = {
+  'الولايات المتحدة': '/images/campus-usa.jpg',
+  'المملكة المتحدة': '/images/campus-uk.jpg',
+  'كندا': '/images/campus-canada.jpg',
+  'أستراليا': '/images/campus-australia.jpg',
+  'اليابان': '/images/campus-japan.jpg',
+  'كوريا الجنوبية': '/images/campus-southkorea.jpg',
+  'إسبانيا': '/images/campus-spain.jpg',
+  'نيوزيلندا': '/images/campus-newzealand.jpg',
+  'ألمانيا': '/images/campus-germany.jpg',
+  'أيرلندا': '/images/campus-ireland.jpg',
+  'ماليزيا': '/images/campus-malaysia.jpg',
+  'تركيا': '/images/campus-turkey.jpg',
+  'هولندا': '/images/campus-netherlands.jpg',
+  'فرنسا': '/images/campus-france.jpg',
+};
+
 const UNI_COUNTRY_TABS = [
   { value: 'all', ar: 'الكل', en: 'الكل' },
   { value: 'الولايات المتحدة', ar: 'أمريكا', en: 'الولايات المتحدة' },
@@ -639,8 +657,15 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
               <div key={i} style={{ background: 'var(--sand-card)', border: '1px solid var(--warm-rule)', borderRadius: '20px', padding: '20px', transition: 'all .3s ease', display: 'flex', flexDirection: 'column', gap: '14px' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(26,41,66,0.08)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'var(--warm-rule)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: '14px', background: 'linear-gradient(135deg, var(--gold-soft) 0%, var(--sand-2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--f-warm-num)', fontSize: '10px', color: 'var(--navy-soft)', fontWeight: 600, letterSpacing: '1px', overflow: 'hidden' }}>
-                  CAMPUS · {u.country}
+                <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '14px', background: 'linear-gradient(135deg, var(--gold-soft) 0%, var(--sand-2) 100%)', overflow: 'hidden' }}>
+                  {COUNTRY_IMAGES[u.country] && (
+                    <img src={COUNTRY_IMAGES[u.country]} alt={`حرم جامعة في ${u.country}`} loading="lazy"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={e => { e.currentTarget.style.display = 'none'; }} />
+                  )}
+                  <div style={{ position: 'absolute', bottom: 8, right: 10, background: 'rgba(26,41,66,0.75)', color: 'var(--sand)', padding: '3px 10px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontSize: '11px', fontWeight: 600, backdropFilter: 'blur(4px)' }}>
+                    {u.country}
+                  </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '12px' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
