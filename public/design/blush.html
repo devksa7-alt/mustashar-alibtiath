@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Blush & Plum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FBF4F0;
+      --bg-2: #F2E5DE;
+      --accent: #B5838D;
+      --accent-soft: #E8C9CE;
+      --accent-shadow: 181,131,141;
+      --ink: #3D2E3F;
+      --ink-soft: #7A6571;
+      --highlight: #D4A574;
+      --rule: rgba(61,46,63,0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); }
+    body {
+      font-family: 'Cairo', sans-serif;
+      color: var(--ink);
+      line-height: 1.5;
+      direction: rtl;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .palette-label {
+      position: fixed; top: 16px; left: 16px;
+      background: var(--ink); color: var(--bg);
+      padding: 8px 16px; border-radius: 999px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+      z-index: 100; font-family: 'Plus Jakarta Sans', sans-serif; direction: ltr;
+    }
+    nav {
+      padding: 24px 48px; display: flex; justify-content: space-between; align-items: center;
+      max-width: 1280px; margin: 0 auto;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; }
+    .logo-mark {
+      width: 40px; height: 40px; border-radius: 14px; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--bg); font-weight: 800; font-size: 20px;
+    }
+    .nav-cta {
+      background: var(--ink); color: var(--bg); border: none;
+      padding: 12px 24px; border-radius: 999px;
+      font-family: inherit; font-weight: 600; font-size: 14px;
+      cursor: pointer; transition: all 0.25s ease;
+    }
+    .nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+    .hero {
+      max-width: 1280px; margin: 0 auto; padding: 60px 48px 100px;
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px; align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--bg-2); color: var(--ink-soft);
+      padding: 8px 16px; border-radius: 999px;
+      font-size: 13px; font-weight: 500; margin-bottom: 24px;
+    }
+    .eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    h1 {
+      font-size: clamp(40px, 5vw, 64px); font-weight: 700; line-height: 1.2;
+      color: var(--ink); margin-bottom: 24px; letter-spacing: -0.5px;
+    }
+    h1 .accent-word { color: var(--accent); }
+    .subtitle {
+      font-size: 18px; color: var(--ink-soft); line-height: 1.8;
+      margin-bottom: 36px; max-width: 520px; font-weight: 400;
+    }
+    .cta-row { display: flex; align-items: center; gap: 16px; margin-bottom: 40px; flex-wrap: wrap; }
+    .cta-primary {
+      background: var(--accent); color: var(--bg); border: none;
+      padding: 18px 32px; border-radius: 999px;
+      font-family: inherit; font-weight: 700; font-size: 16px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+      box-shadow: 0 4px 16px rgba(var(--accent-shadow),0.3);
+      transition: all 0.25s ease;
+    }
+    .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(var(--accent-shadow),0.5); }
+    .cta-secondary {
+      background: transparent; color: var(--ink); border: none;
+      padding: 18px 8px; font-family: inherit; font-weight: 500; font-size: 15px;
+      cursor: pointer; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 5px;
+    }
+    .stats { display: flex; gap: 40px; padding-top: 28px; border-top: 1px solid var(--rule); }
+    .stat { display: flex; flex-direction: column; gap: 4px; }
+    .stat-num {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 700;
+      color: var(--ink); direction: ltr; line-height: 1;
+    }
+    .stat-label { font-size: 13px; color: var(--ink-soft); }
+    .illustration {
+      position: relative; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+    }
+    .illo-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 60% 40%, var(--accent-soft) 0%, transparent 65%);
+      border-radius: 50%; opacity: 0.6;
+    }
+    .globe {
+      width: 65%; height: 65%; border-radius: 50%; background: var(--bg);
+      box-shadow: inset 0 0 0 1px var(--rule), 0 20px 60px rgba(61,46,63,0.1);
+      position: relative;
+    }
+    .globe::before, .globe::after {
+      content: ''; position: absolute; border-radius: 50%; border: 1px dashed var(--rule);
+    }
+    .globe::before { inset: 12%; }
+    .globe::after { inset: 28%; }
+    .globe-dot {
+      position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(var(--accent-shadow),0.18);
+    }
+    .dot-1 { top: 22%; right: 30%; }
+    .dot-2 { bottom: 28%; right: 55%; background: var(--highlight); box-shadow: 0 0 0 6px rgba(212,165,116,0.2); }
+    .dot-3 { top: 50%; left: 22%; }
+    .illo-card {
+      position: absolute; background: var(--bg); border-radius: 20px; padding: 14px 18px;
+      box-shadow: 0 10px 40px rgba(61,46,63,0.12); display: flex; align-items: center; gap: 12px;
+      border: 1px solid var(--rule);
+    }
+    .illo-card-1 { top: 8%; left: 2%; animation: float 6s ease-in-out infinite; }
+    .illo-card-2 { bottom: 12%; right: 0%; animation: float 6s ease-in-out infinite 2s; }
+    .illo-card-3 { top: 55%; left: -5%; animation: float 6s ease-in-out infinite 4s; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .card-flag {
+      width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft);
+      display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--ink);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .card-text { display: flex; flex-direction: column; gap: 2px; }
+    .card-name { font-size: 14px; font-weight: 700; color: var(--ink); font-family: 'Plus Jakarta Sans', sans-serif; direction: ltr; }
+    .card-meta { font-size: 11px; color: var(--ink-soft); font-weight: 500; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 32px 24px 60px; gap: 40px; }
+      .illustration { display: none; }
+      nav { padding: 16px 24px; }
+      .stats { flex-wrap: wrap; gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="palette-label">Blush & Plum</div>
+  <nav>
+    <div class="logo">
+      <div class="logo-mark">م</div>
+      <div>مستشار الابتعاث</div>
+    </div>
+    <button class="nav-cta">ابدأ الاستشارة</button>
+  </nav>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span>مدعوم بالذكاء الاصطناعي</span>
+      </div>
+      <h1>اعثر على جامعتك <span class="accent-word">المثالية</span> في الخارج</h1>
+      <p class="subtitle">نوصي بأفضل الجامعات والمنح الحكومية حسب معدلك ومجالك واهتماماتك، خلال دقائق وبدون تعقيد.</p>
+      <div class="cta-row">
+        <button class="cta-primary">
+          <span>ابدأ الآن مجاناً</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <button class="cta-secondary">شاهد كيف يعمل</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-num">236</div><div class="stat-label">جامعة معتمدة</div></div>
+        <div class="stat"><div class="stat-num">14</div><div class="stat-label">دولة حول العالم</div></div>
+        <div class="stat"><div class="stat-num">11</div><div class="stat-label">برنامج ابتعاث</div></div>
+      </div>
+    </div>
+    <div class="illustration">
+      <div class="illo-bg"></div>
+      <div class="globe">
+        <div class="globe-dot dot-1"></div>
+        <div class="globe-dot dot-2"></div>
+        <div class="globe-dot dot-3"></div>
+      </div>
+      <div class="illo-card illo-card-1">
+        <div class="card-flag">CA</div>
+        <div class="card-text"><div class="card-name">Toronto</div><div class="card-meta">الفئة الأولى · هندسة</div></div>
+      </div>
+      <div class="illo-card illo-card-2">
+        <div class="card-flag">UK</div>
+        <div class="card-text"><div class="card-name">Imperial</div><div class="card-meta">الفئة الأولى · طب</div></div>
+      </div>
+      <div class="illo-card illo-card-3">
+        <div class="card-flag">DE</div>
+        <div class="card-text"><div class="card-name">TU Munich</div><div class="card-meta">الفئة الثانية · علوم</div></div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
