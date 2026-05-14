@@ -34,7 +34,7 @@ SUPABASE_SERVICE_ROLE_KEY   # server-side only, never exposed to browser
 
 ```
 pages/
-  index.js       — Entire frontend (1700+ lines, all components in one file)
+  index.js       — Entire frontend (1800+ lines, all components in one file)
   _app.js        — Google Fonts preconnect + favicon link
   _document.js   — Custom Document: sets <html lang="ar" dir="rtl">
 api/
@@ -43,27 +43,30 @@ styles/
   globals.css    — CSS variables, global resets, focus-visible rings, mobile optimizations
 public/
   favicon.svg    — SVG compass favicon
+  images/        — Campus photos and hero portrait (see Image Assets below)
+  design/        — Static HTML mockups kept for design history (cream, sand, blush, sand-v2)
 ```
 
 ### Frontend (`pages/index.js`)
 
-Single-file React app. **All styling is inline styles** — no CSS classes, no Tailwind. Every component receives layout via JavaScript objects. The design system variables live in `globals.css` as CSS custom properties (`var(--paper)`, `var(--ink)`, `var(--accent)`, etc.) and are referenced by name in inline styles.
+Single-file React app. **All styling is inline styles** — no CSS classes, no Tailwind. Every component receives layout via JavaScript objects. The design system variables live in `globals.css` as CSS custom properties and are referenced by name in inline styles.
 
 **Screen state machine** — `screen` state drives which of three screens renders:
-- `'landing'` — full marketing page (Nav, Hero, Method, ProgramBoard, UniversityExplorer, ClosingCTA, Footer)
-- `'questionnaire'` — 12-question wizard (QuestionnaireScreen component)
-- `'results'` — AI-generated report (ResultsScreen component)
+- `'landing'` — full marketing page (Nav, Hero, HowItWorks, UniversityExplorer, ClosingCTA, Footer)
+- `'questionnaire'` — 12-question wizard (QuestionnaireScreen component) — **Phase 2 redesign pending**
+- `'results'` — AI-generated report (ResultsScreen component) — **Phase 2 redesign pending**
 
 **Questionnaire flow** — `baseQuestions` array defines all questions; some have `showIf` predicates (e.g. mahram question only shows for female). The active `questions` array is filtered from `baseQuestions` on every render. `step` is an index into `questions`.
 
 **Design system constants** at the top of `index.js`:
-- `edMono` / `edNum` — shared style objects for monospace labels and lining numerals
+- `edMono` / `edNum` — shared style objects for monospace labels and lining numerals (legacy, used in questionnaire/results)
 - `FIELD_LABELS`, `WEATHER_LABELS`, `SAFETY_LABELS`, `TIER_LABELS`, `MF_LABELS`, `BUDGET_LABELS` — display label maps
-- `getWeatherColor(val)` / `getSafetyColor(val)` — accept either DB code keys (`'hot'`, `'cold'`) or Arabic label strings — used for colored dot indicators
+- `getWeatherColor(val)` / `getSafetyColor(val)` — accept either DB code keys (`'hot'`, `'cold'`) or Arabic label strings
+- `COUNTRY_IMAGES` — map from Arabic country strings to `/images/campus-{country}.jpg` paths (14 countries; missing photos fall back to gradient)
 
-**Compass component** accepts `trackMouse` prop. When true, attaches a global `mousemove` listener and rotates the needle SVG `<g>` to point toward the cursor. Used only in the hero section.
+**Compass component** accepts `trackMouse` prop. When true, attaches a global `mousemove` listener and rotates the needle SVG `<g>` to point toward the cursor. Used only in the hero section (legacy — may be removed in phase 2).
 
-**Responsive** — `useWindowSize()` hook at the top of the file provides `width`/`height`. The main `Home` component computes `isMobile = winWidth < 768` and passes it as a prop to every component. All grid layouts conditionally switch between desktop multi-column and mobile single-column. On mobile: Nav hides links, Hero stacks vertically, country picker becomes horizontal scroll tabs, university rows collapse tier/weather columns inline, questionnaire uses single-column option grids.
+**Responsive** — `useWindowSize()` hook at the top of the file provides `width`/`height`. The main `Home` component computes `isMobile = winWidth < 768` and passes it as a prop to every component. All grid layouts conditionally switch between desktop multi-column and mobile single-column.
 
 ### Backend (`api/recommend.js`)
 
@@ -93,9 +96,9 @@ Vercel serverless function with two routes:
 
 ### Data (current — hardcoded, migration planned)
 
-All data lives directly in `api/recommend.js` as JavaScript constants. **This is the next major area of work** — migrating to Supabase (see below).
+All data lives directly in `api/recommend.js` as JavaScript constants.
 
-`UNIVERSITIES` — 152 entries across USA, UK, Canada, Australia, Japan, South Korea, Spain, New Zealand. Each entry: `nameAr`, `nameEn`, `country` (Arabic), `city`, `tier` (1/2/3), `minGpa` (4.0 scale), `fields` (array of category keys), `email`, `weather`, `safety`, `muslimFriendly` (object with `halal`, `mosque`, `saudiCommunity`, `prayerRoom`), and optionally `englishGradOnly`.
+`UNIVERSITIES` — 154 entries across USA, UK, Canada, Australia, Japan, South Korea, Spain, New Zealand. Each entry: `nameAr`, `nameEn`, `country` (Arabic), `city`, `tier` (1/2/3), `minGpa` (4.0 scale), `fields` (array of category keys), `email`, `weather`, `safety`, `muslimFriendly` (object with `halal`, `mosque`, `saudiCommunity`, `prayerRoom`), and optionally `englishGradOnly`.
 
 `SAUDI_PROGRAMS` — 11 government scholarship programs. Fields: `name`, `description`, `eligibility`, `applicable` (academic level array), `fields`, `link`, `linkLabel`.
 
@@ -132,22 +135,104 @@ id, program_name, open_month, close_month
 
 ## Design Language
 
-**Editorial Atlas** — newspaper/cartography metaphor. Key patterns:
-- Section eyebrows: large italic Roman numeral + Arabic display title + small-caps English label
-- Numbering: `№01` in Cormorant Garamond italic gold (`var(--accent)`)
-- Hairline rules: `1px solid var(--hairline)` (18% opacity ink) for subdivisions
-- Hard rules: `1px solid var(--rule)` (full ink) for section breaks
-- Topo background: SVG sine-wave pattern at 4–6% opacity
+### ⚠️ Active Design System: Sand & Gold (Landing Page)
 
-**Fonts** (loaded via Google Fonts in `_app.js`):
-- `var(--f-arabic-disp)` → Lalezar — hero titles, section headers
-- `var(--f-display)` → Cormorant Garamond — editorial English, numbers
-- `var(--f-arabic)` → Tajawal — body Arabic, UI labels
-- `var(--f-mono)` → JetBrains Mono — eyebrow labels, codes, `edMono` style object
-- `var(--f-num)` → Cormorant Garamond — lining numerals, `edNum` style object
+The landing page was fully redesigned in Phase 1 to a **warm, human** aesthetic. The Editorial Atlas system is retired for the landing page but kept intact for Questionnaire and Results screens.
+
+**Sand & Gold tokens** (in `globals.css`, used by landing components):
+- `--sand: #F5EFE3` — page background
+- `--sand-2: #EBE3D2` — subtle section backgrounds
+- `--sand-card: #FBF8F0` — card backgrounds
+- `--gold: #C9A961` — primary accent (CTAs, highlights)
+- `--gold-soft: #E5D4A1` — muted gold for pills/tags
+- `--navy: #1A2942` — primary text, dark sections
+- `--navy-soft: #5A6678` — secondary text
+- `--bronze: #8B6F3E` — tertiary accent
+- `--warm-rule: rgba(26, 41, 66, 0.1)` — dividers
+- `--f-warm: 'Cairo', 'Tajawal', sans-serif` — Arabic body + display
+- `--f-warm-num: 'Plus Jakarta Sans', 'Cormorant Garamond', sans-serif` — numerals
+
+**Landing component inventory** (all in `pages/index.js`):
+- `Nav` — blurred sticky header, gold `م` logo mark, `ابدأ الاستشارة` CTA
+- `Hero` — photo slot (`/images/hero-student.jpg`), gold-highlighted headline, floating preview cards (Toronto/Imperial) with `warm-float` animation, stats row
+- `HowItWorks` — 3-step cards with SVG icons, gold step numbers, hover lift (replaces old `Method`)
+- `UniversityExplorer` — warm card grid, campus photo via `COUNTRY_IMAGES`, country/field filters, search bar — all filtering logic preserved
+- `ClosingCTA` — navy background, gold button
+- `Footer` — sand background, credit to Sanad Allheani
+
+**Removed from landing** (functions still in file for Phase 2 reference): `TopoLines`, `QuoteRibbon`, `Method`, `ProgramBoard`
+
+**IMPORTANT RULE — No مجاناً anywhere.** All CTAs say "ابدأ الاستشارة" or "ابدأ الاستشارة الآن". Never add "مجاناً" or "free" to any button or copy.
+
+**Always preview screenshots before committing.** Use `preview_start` + `preview_screenshot` to verify the page at 1440×900 viewport before every push.
+
+### Legacy Design System: Editorial Atlas (Questionnaire + Results)
+
+Still active for `QuestionnaireScreen` and `ResultsScreen`. Tokens preserved in `globals.css`:
+- `--paper: #f4efe6`, `--ink: #14233b`, `--accent: #b6873a`
+- Fonts: Lalezar (display), Cormorant Garamond (numbers), Tajawal (body), JetBrains Mono (eyebrows)
+- Section eyebrows: large italic Roman numeral + Arabic display title
+- Numbering: `№01` in Cormorant Garamond italic gold
+- Hairline rules: `1px solid var(--hairline)`
+
+### Image Assets (`public/images/`)
+
+| File | Content | Status |
+|------|---------|--------|
+| `hero-student.jpg` | Young man, backpack, autumn tones | ✅ present |
+| `campus-australia.jpg` | Sydney Opera House | ✅ present |
+| `campus-canada.jpg` | Toronto campus | ✅ present |
+| `campus-germany.jpg` | Bavarian architecture | ✅ present |
+| `campus-japan.jpg` | Modern Asian campus | ✅ present |
+| `campus-spain.jpg` | Spanish plaza/cathedral | ✅ present |
+| `campus-uk.jpg` | English collegiate gothic | ✅ present |
+| `campus-usa.jpg` | Ivy League autumn quad | ✅ present |
+| `campus-newzealand.jpg` | Auckland city campus | ✅ present |
+| `campus-southkorea.jpg` | Seoul campus, ginkgo autumn | ✅ present |
+| `campus-ireland.jpg` | Trinity Dublin style courtyard | ✅ present |
+| `campus-malaysia.jpg` | Tropical campus, palms | ✅ present |
+| `campus-turkey.jpg` | Bosphorus hillside campus | ✅ present |
+| `campus-netherlands.jpg` | Amsterdam canal building | ✅ present |
+| `campus-france.jpg` | Sorbonne Paris in autumn | ✅ present |
+
+All 14 country campus photos are now in place. New images added via the `mcp__mcp-image__generate_image` MCP tool (Gemini backend).
+
+**Lesson learned on Gemini image gen:** Long detailed prompts (40+ words) repeatedly returned 503 "high demand" errors. Short prompts (5-10 words, named landmark + season) worked reliably. Example that works: `"Sorbonne Paris in autumn."` Use the Gemini MCP with concise, landmark-anchored prompts to avoid 503 cycling.
+
+All `<img>` tags use `onError` to silently fall back to a gradient if a photo is missing.
+
+## Pending Work
+
+### Immediate (User Action)
+- **Merge PR #2** at https://github.com/devksa7-alt/mustashar-alibtiath/pull/2 — deploys the Phase 1 landing redesign to production on Vercel
+
+### Phase 2: Questionnaire Redesign
+- Card stack with motion — one question per screen, slide transitions between steps
+- All questionnaire logic (`baseQuestions`, `showIf`, `step` state) preserved — UI only
+- Results screen redesign to match Sand & Gold palette
+
+### Phase 3: Database & Bug Fixes
+- Expand `UNIVERSITIES` from ~154 to ~250 entries (Germany, Ireland, Malaysia, Turkey, Netherlands, France + more mid-tier)
+- Fix zero-results bug for lab specialist profiles: expand `categorizeField()` regex, add progressive fallback in `filterUniversities()`, frontend empty-state message
+- Supabase migration (see above)
+
+## Fonts (loaded via Google Fonts in `_app.js`)
+
+- `var(--f-warm)` → Cairo — landing page Arabic body + display
+- `var(--f-warm-num)` → Plus Jakarta Sans — landing page numerals/English
+- `var(--f-arabic-disp)` → Lalezar — questionnaire/results section headers
+- `var(--f-display)` → Cormorant Garamond — questionnaire/results editorial numbers
+- `var(--f-arabic)` → Tajawal — questionnaire/results body Arabic
+- `var(--f-mono)` → JetBrains Mono — eyebrow labels in questionnaire/results
 
 The page is `dir="rtl"` on all screens (set in `_document.js` on `<html>` element). LTR elements (English text, numbers, codes) use `direction: 'ltr'` inline.
 
-**Focus rings** — `globals.css` defines `:focus-visible` outlines using `var(--accent)` for all interactive elements.
+**Focus rings** — `globals.css` defines `:focus-visible` outlines using `var(--gold)` (updated from legacy `--accent`) for all interactive elements.
 
 **Mobile** — `globals.css` includes `@media (max-width: 768px)` for `-webkit-tap-highlight-color: transparent` and `font-size: 16px` on inputs to prevent iOS zoom.
+
+## Tooling Notes
+
+- **gh CLI full path**: `/c/Program Files/GitHub CLI/gh.exe` (not in PATH)
+- **Active branch**: `claude/goofy-curie-7a21eb`
+- **Dev explorer shows 0 universities**: expected — the GET `/api/recommend` endpoint is Vercel-only; will show 236 in production
