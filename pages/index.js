@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
 
 // ═══════════════════════════════════════════════════════════════
@@ -19,32 +19,35 @@ function useWindowSize() {
 // MOTION PRIMITIVES — scroll reveal, count-up, scroll progress
 // ═══════════════════════════════════════════════════════════════
 function useReveal({ threshold = 0.15, rootMargin = '0px 0px -80px 0px' } = {}) {
-  const ref = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [node, setNode] = useState(null);
+  // Callback ref — fires when the DOM node attaches OR detaches. Using a
+  // callback ref instead of useRef is critical: if the component returns
+  // early before the observed element mounts (e.g. UniversityExplorer
+  // rendering a loading spinner first), a useRef-based effect would run
+  // once with ref.current=null and never re-run. The callback ref triggers
+  // setNode when the real element finally mounts, which re-fires the effect.
+  const ref = useCallback((el) => { if (el) setNode(el); }, []);
   useEffect(() => {
-    if (!ref.current) return;
+    if (!node) return;
     if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
       setVisible(true); return;
     }
-    const node = ref.current;
-    // 1) If element is already in viewport on mount (page reload mid-scroll,
-    //    above-the-fold sections, etc.), reveal immediately — no waiting on IO.
+    // 1) Already in viewport → reveal now, no waiting.
     const rect = node.getBoundingClientRect();
     if (rect.top < window.innerHeight && rect.bottom > 0) {
       setVisible(true);
       return;
     }
-    // 2) Otherwise, wait for scroll-in.
+    // 2) Below the fold → observe for scroll-in.
     const io = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setVisible(true); io.disconnect(); }
     }, { threshold, rootMargin });
     io.observe(node);
-    // 3) Failsafe: if for any reason the observer never fires (e.g. browser
-    //    quirk or element gets removed from layout), force-show after 2s so
-    //    content never stays invisible.
+    // 3) Failsafe — never let content stay invisible.
     const fallback = setTimeout(() => setVisible(true), 2000);
     return () => { io.disconnect(); clearTimeout(fallback); };
-  }, [threshold, rootMargin]);
+  }, [node, threshold, rootMargin]);
   return [ref, visible];
 }
 
