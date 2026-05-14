@@ -16,6 +16,82 @@ function useWindowSize() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// MOTION PRIMITIVES — scroll reveal, count-up, scroll progress
+// ═══════════════════════════════════════════════════════════════
+function useReveal({ threshold = 0.15, rootMargin = '0px 0px -80px 0px' } = {}) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      setVisible(true); return;
+    }
+    const node = ref.current;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); io.disconnect(); }
+    }, { threshold, rootMargin });
+    io.observe(node);
+    return () => io.disconnect();
+  }, [threshold, rootMargin]);
+  return [ref, visible];
+}
+
+// Inline style helper for scroll/mount reveal cascades.
+// Pass `visible=true` to ease in; vary `delay` (ms) for stagger.
+function reveal(visible, delay = 0, distance = 20) {
+  return {
+    opacity: visible ? 1 : 0,
+    transform: visible ? 'translateY(0)' : `translateY(${distance}px)`,
+    transition: `opacity .7s cubic-bezier(.2,.7,.3,1) ${delay}ms, transform .7s cubic-bezier(.2,.7,.3,1) ${delay}ms`,
+    willChange: 'opacity, transform',
+  };
+}
+
+// Animated number that counts up from 0 to `end` once `play=true`.
+function CountUp({ end, duration = 1400, play = true }) {
+  const [val, setVal] = useState(0);
+  const started = useRef(false);
+  useEffect(() => {
+    if (!play || started.current) return;
+    started.current = true;
+    const start = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      setVal(Math.round(end * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [end, duration, play]);
+  return <>{val}</>;
+}
+
+// Slim gold scroll-progress bar pinned to the top of the viewport.
+function ScrollProgress() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    function onScroll() {
+      const max = (document.documentElement.scrollHeight - window.innerHeight) || 1;
+      setPct(Math.min(100, Math.max(0, (window.scrollY / max) * 100)));
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+  return (
+    <div aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 60, pointerEvents: 'none' }}>
+      <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, var(--gold) 0%, var(--gold-soft) 100%)', transition: 'width .1s linear' }} />
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
 // DESIGN LABELS
 // ═══════════════════════════════════════════════════════════════
 const FIELD_LABELS = {
@@ -251,21 +327,35 @@ const CHAPTERS = [
 // ═══════════════════════════════════════════════════════════════
 // HOME: NAV
 // ═══════════════════════════════════════════════════════════════
+function NavLink({ href, children }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <a href={href}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{ position: 'relative', transition: 'color .2s', color: hover ? 'var(--navy)' : 'var(--navy-soft)', paddingBottom: 4, textDecoration: 'none' }}>
+      {children}
+      <span style={{ position: 'absolute', bottom: -2, right: 0, height: 1.5, background: 'var(--gold)', width: hover ? '100%' : 0, transition: 'width .3s ease' }} />
+    </a>
+  );
+}
+
 function Nav({ onStart, isMobile }) {
   return (
     <header className="no-print" style={{ position: 'sticky', top: 0, zIndex: 40, background: 'rgba(245,239,227,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '16px 16px' : '20px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: isMobile ? 36 : 40, height: isMobile ? 36 : 40, borderRadius: '14px', background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--navy)', fontWeight: 800, fontSize: isMobile ? 18 : 20, fontFamily: 'var(--f-warm)' }}>م</div>
+          <div style={{ width: isMobile ? 36 : 40, height: isMobile ? 36 : 40, borderRadius: '14px', background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--navy)', fontWeight: 800, fontSize: isMobile ? 18 : 20, fontFamily: 'var(--f-warm)', boxShadow: '0 4px 12px rgba(var(--gold-shadow), 0.3)' }}>م</div>
           <span style={{ fontFamily: 'var(--f-warm)', fontWeight: 700, fontSize: isMobile ? 16 : 18, color: 'var(--navy)' }}>مستشار الابتعاث</span>
         </div>
         {!isMobile && (
-          <nav style={{ display: 'flex', gap: '32px', fontFamily: 'var(--f-warm)', fontSize: '14px', fontWeight: 500, color: 'var(--navy-soft)' }}>
-            <a href="#how" style={{ transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--navy)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--navy-soft)'}>كيف يعمل</a>
-            <a href="#explorer" style={{ transition: 'color .2s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--navy)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--navy-soft)'}>الجامعات</a>
+          <nav style={{ display: 'flex', gap: '32px', fontFamily: 'var(--f-warm)', fontSize: '14px', fontWeight: 500 }}>
+            <NavLink href="#how">كيف يعمل</NavLink>
+            <NavLink href="#programs">برامج الابتعاث</NavLink>
+            <NavLink href="#explorer">الجامعات</NavLink>
           </nav>
         )}
-        <button onClick={onStart} style={{ background: 'var(--navy)', color: 'var(--sand)', border: 'none', padding: isMobile ? '10px 18px' : '12px 24px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontWeight: 600, fontSize: isMobile ? 13 : 14, cursor: 'pointer', transition: 'all .25s ease' }}
+        <button onClick={onStart} style={{ background: 'var(--navy)', color: 'var(--sand)', border: 'none', padding: isMobile ? '10px 18px' : '12px 24px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontWeight: 600, fontSize: isMobile ? 13 : 14, cursor: 'pointer', transition: 'background .25s ease, color .25s ease, transform .25s ease' }}
           onMouseEnter={e => { e.currentTarget.style.background = 'var(--gold)'; e.currentTarget.style.color = 'var(--navy)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'var(--navy)'; e.currentTarget.style.color = 'var(--sand)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
           ابدأ الاستشارة
@@ -280,21 +370,28 @@ function Nav({ onStart, isMobile }) {
 // ═══════════════════════════════════════════════════════════════
 function Hero({ onStart, isMobile }) {
   const heroPhoto = '/images/hero-student.jpg';
+  const [mounted, setMounted] = useState(false);
+  const [statsRef, statsVisible] = useReveal({ threshold: 0.3 });
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
     <section style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '32px 16px 60px' : '60px 40px 100px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.1fr 0.9fr', gap: isMobile ? '40px' : '60px', alignItems: 'center' }}>
       <div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--sand-2)', color: 'var(--navy-soft)', padding: '8px 16px', borderRadius: '999px', fontSize: '13px', fontWeight: 500, fontFamily: 'var(--f-warm)', marginBottom: '24px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--sand-2)', color: 'var(--navy-soft)', padding: '8px 16px', borderRadius: '999px', fontSize: '13px', fontWeight: 500, fontFamily: 'var(--f-warm)', marginBottom: '24px', ...reveal(mounted, 0) }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gold)' }} />
           <span>مدعوم بالذكاء الاصطناعي</span>
         </div>
-        <h1 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? 'clamp(36px, 9vw, 48px)' : 'clamp(40px, 5vw, 64px)', fontWeight: 700, lineHeight: 1.2, color: 'var(--navy)', margin: '0 0 24px', letterSpacing: '-0.5px' }}>
+        <h1 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? 'clamp(36px, 9vw, 48px)' : 'clamp(40px, 5vw, 64px)', fontWeight: 700, lineHeight: 1.2, color: 'var(--navy)', margin: '0 0 24px', letterSpacing: '-0.5px', ...reveal(mounted, 120) }}>
           اعثر على جامعتك <span style={{ color: 'var(--gold)' }}>المثالية</span> في الخارج
         </h1>
-        <p style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '16px' : '18px', color: 'var(--navy-soft)', lineHeight: 1.8, margin: '0 0 36px', maxWidth: '520px', fontWeight: 400 }}>
+        <p style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '16px' : '18px', color: 'var(--navy-soft)', lineHeight: 1.8, margin: '0 0 36px', maxWidth: '520px', fontWeight: 400, ...reveal(mounted, 240) }}>
           نوصي بأفضل الجامعات والمنح الحكومية حسب معدلك ومجالك واهتماماتك، خلال دقائق وبدون تعقيد.
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px', flexWrap: 'wrap' }}>
-          <button onClick={onStart} style={{ background: 'var(--gold)', color: 'var(--navy)', border: 'none', padding: '18px 32px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontWeight: 700, fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 16px rgba(var(--gold-shadow),0.3)', transition: 'all .25s ease' }}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px', flexWrap: 'wrap', ...reveal(mounted, 360) }}>
+          <button onClick={onStart} style={{ background: 'var(--gold)', color: 'var(--navy)', border: 'none', padding: '18px 32px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontWeight: 700, fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 16px rgba(var(--gold-shadow),0.3)', transition: 'transform .25s ease, box-shadow .25s ease' }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(var(--gold-shadow),0.5)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(var(--gold-shadow),0.3)'; }}>
             <span>ابدأ الاستشارة</span>
@@ -302,10 +399,12 @@ function Hero({ onStart, isMobile }) {
           </button>
           <a href="#how" style={{ color: 'var(--navy)', fontFamily: 'var(--f-warm)', fontWeight: 500, fontSize: '15px', textDecoration: 'underline', textDecorationThickness: '1.5px', textUnderlineOffset: '5px', padding: '18px 8px' }}>شاهد كيف يعمل</a>
         </div>
-        <div style={{ display: 'flex', gap: isMobile ? '24px' : '40px', paddingTop: '28px', borderTop: '1px solid var(--warm-rule)', flexWrap: 'wrap' }}>
-          {[{ n: '236', l: 'جامعة معتمدة' }, { n: '14', l: 'دولة حول العالم' }, { n: '11', l: 'برنامج ابتعاث' }].map((s, i) => (
+        <div ref={statsRef} style={{ display: 'flex', gap: isMobile ? '24px' : '40px', paddingTop: '28px', borderTop: '1px solid var(--warm-rule)', flexWrap: 'wrap', ...reveal(mounted, 480) }}>
+          {[{ n: 236, l: 'جامعة معتمدة' }, { n: 14, l: 'دولة حول العالم' }, { n: 11, l: 'برنامج ابتعاث' }].map((s, i) => (
             <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ fontFamily: 'var(--f-warm-num)', fontSize: '32px', fontWeight: 700, color: 'var(--navy)', direction: 'ltr', lineHeight: 1 }}>{s.n}</div>
+              <div style={{ fontFamily: 'var(--f-warm-num)', fontSize: '32px', fontWeight: 700, color: 'var(--navy)', direction: 'ltr', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                <CountUp end={s.n} duration={1400 + i * 200} play={statsVisible} />
+              </div>
               <div style={{ fontFamily: 'var(--f-warm)', fontSize: '13px', color: 'var(--navy-soft)' }}>{s.l}</div>
             </div>
           ))}
@@ -313,23 +412,30 @@ function Hero({ onStart, isMobile }) {
       </div>
 
       {!isMobile && (
-        <div style={{ position: 'relative', aspectRatio: '4 / 5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', aspectRatio: '4 / 5', display: 'flex', alignItems: 'center', justifyContent: 'center', ...reveal(mounted, 180, 30) }}>
           <div style={{ position: 'absolute', inset: '-20px', background: 'radial-gradient(circle at 60% 40%, var(--gold-soft) 0%, transparent 65%)', borderRadius: '50%', opacity: 0.5, zIndex: 0 }} />
           <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', borderRadius: '28px', overflow: 'hidden', background: 'linear-gradient(135deg, var(--gold-soft) 0%, var(--sand-2) 100%)', boxShadow: '0 30px 80px rgba(26,41,66,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src={heroPhoto} alt="طالب سعودي مبتعث" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            <img src={heroPhoto} alt="طالب سعودي مبتعث" style={{ width: '100%', height: '100%', objectFit: 'cover', animation: 'ken-burns 16s ease-in-out infinite alternate' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           </div>
-          <div style={{ position: 'absolute', top: '12%', left: '-8%', background: 'var(--sand-card)', borderRadius: '18px', padding: '14px 18px', boxShadow: '0 10px 40px rgba(26,41,66,0.15)', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid var(--warm-rule)', zIndex: 2, animation: 'warm-float 6s ease-in-out infinite' }}>
+          <div style={{ position: 'absolute', top: '8%', left: '-8%', background: 'var(--sand-card)', borderRadius: '18px', padding: '14px 18px', boxShadow: '0 10px 40px rgba(26,41,66,0.15)', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid var(--warm-rule)', zIndex: 2, animation: 'warm-float 6s ease-in-out infinite' }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--navy)', fontFamily: 'var(--f-warm-num)' }}>CA</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', fontFamily: 'var(--f-warm-num)', direction: 'ltr' }}>Toronto</div>
               <div style={{ fontSize: 11, color: 'var(--navy-soft)', fontWeight: 500, fontFamily: 'var(--f-warm)' }}>الفئة الأولى · هندسة</div>
             </div>
           </div>
-          <div style={{ position: 'absolute', bottom: '18%', right: '-8%', background: 'var(--sand-card)', borderRadius: '18px', padding: '14px 18px', boxShadow: '0 10px 40px rgba(26,41,66,0.15)', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid var(--warm-rule)', zIndex: 2, animation: 'warm-float 6s ease-in-out infinite 2s' }}>
+          <div style={{ position: 'absolute', bottom: '32%', right: '-8%', background: 'var(--sand-card)', borderRadius: '18px', padding: '14px 18px', boxShadow: '0 10px 40px rgba(26,41,66,0.15)', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid var(--warm-rule)', zIndex: 2, animation: 'warm-float 6s ease-in-out infinite 2s' }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--navy)', fontFamily: 'var(--f-warm-num)' }}>UK</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', fontFamily: 'var(--f-warm-num)', direction: 'ltr' }}>Imperial</div>
               <div style={{ fontSize: 11, color: 'var(--navy-soft)', fontWeight: 500, fontFamily: 'var(--f-warm)' }}>الفئة الأولى · طب</div>
+            </div>
+          </div>
+          <div style={{ position: 'absolute', bottom: '6%', left: '4%', background: 'var(--sand-card)', borderRadius: '18px', padding: '14px 18px', boxShadow: '0 10px 40px rgba(26,41,66,0.15)', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid var(--warm-rule)', zIndex: 2, animation: 'warm-float 6s ease-in-out infinite 4s' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gold-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--navy)', fontFamily: 'var(--f-warm-num)' }}>DE</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', fontFamily: 'var(--f-warm-num)', direction: 'ltr' }}>TU Munich</div>
+              <div style={{ fontSize: 11, color: 'var(--navy-soft)', fontWeight: 500, fontFamily: 'var(--f-warm)' }}>الفئة الثانية · علوم</div>
             </div>
           </div>
         </div>
@@ -362,26 +468,33 @@ function HowItWorks({ isMobile }) {
       icon: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>)
     }
   ];
+  const [sectionRef, visible] = useReveal();
   return (
-    <section id="how" style={{ padding: isMobile ? '60px 16px' : '100px 40px', maxWidth: 1280, margin: '0 auto' }}>
+    <section id="how" ref={sectionRef} style={{ padding: isMobile ? '60px 16px' : '100px 40px', maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
       <div style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '64px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--gold)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '16px', fontFamily: 'var(--f-warm-num)', direction: 'ltr' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--gold)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '16px', fontFamily: 'var(--f-warm-num)', direction: 'ltr', ...reveal(visible, 0) }}>
           <span style={{ width: 24, height: 1.5, background: 'var(--gold)' }} />
           <span>How it works</span>
         </div>
-        <h2 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.25, color: 'var(--navy)', margin: '0 0 16px', letterSpacing: '-0.5px' }}>ثلاث خطوات بسيطة</h2>
-        <p style={{ fontFamily: 'var(--f-warm)', fontSize: '17px', color: 'var(--navy-soft)', lineHeight: 1.7, margin: '16px auto 0', maxWidth: '600px' }}>من ملف بسيط إلى توصيات شخصية في أقل من خمس دقائق.</p>
+        <h2 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.25, color: 'var(--navy)', margin: '0 0 16px', letterSpacing: '-0.5px', ...reveal(visible, 80) }}>ثلاث خطوات بسيطة</h2>
+        <p style={{ fontFamily: 'var(--f-warm)', fontSize: '17px', color: 'var(--navy-soft)', lineHeight: 1.7, margin: '16px auto 0', maxWidth: '600px', ...reveal(visible, 160) }}>من ملف بسيط إلى توصيات شخصية في أقل من خمس دقائق.</p>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
+      <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
+        {/* Dashed connecting line behind icons — desktop only */}
+        {!isMobile && (
+          <svg aria-hidden="true" style={{ position: 'absolute', top: 120, right: '16.5%', left: '16.5%', height: 2, width: '67%', pointerEvents: 'none', overflow: 'visible' }} viewBox="0 0 800 2" preserveAspectRatio="none">
+            <line x1="0" y1="1" x2="800" y2="1" stroke="var(--gold-soft)" strokeWidth="2" strokeDasharray="6 8" style={{ strokeDashoffset: visible ? 0 : 200, transition: 'stroke-dashoffset 1.4s ease-out 400ms' }} />
+          </svg>
+        )}
         {steps.map((s, i) => (
-          <div key={i} style={{ background: 'var(--sand-card)', border: '1px solid var(--warm-rule)', borderRadius: '24px', padding: '36px 28px', transition: 'all .3s ease' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 50px rgba(26,41,66,0.08)'; e.currentTarget.style.borderColor = 'var(--gold-soft)'; }}
+          <div key={i} style={{ background: 'var(--sand-card)', border: '1px solid var(--warm-rule)', borderRadius: '24px', padding: '36px 28px', transition: 'transform .3s ease, box-shadow .3s ease, border-color .3s ease, opacity .7s cubic-bezier(.2,.7,.3,1) ' + (260 + i * 140) + 'ms', position: 'relative', zIndex: 1, opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 22px 56px rgba(26,41,66,0.10)'; e.currentTarget.style.borderColor = 'var(--gold-soft)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'var(--warm-rule)'; }}>
             <div style={{ fontFamily: 'var(--f-warm-num)', fontSize: '14px', fontWeight: 700, color: 'var(--gold)', marginBottom: '20px', direction: 'ltr', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: 28, height: 1.5, background: 'var(--gold)' }} />
               <span>Step {s.n}</span>
             </div>
-            <div style={{ width: 56, height: 56, borderRadius: '16px', background: 'var(--gold-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', color: 'var(--navy)' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '16px', background: 'var(--gold-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', color: 'var(--navy)', transform: visible ? 'scale(1)' : 'scale(0.85)', transition: `transform .6s cubic-bezier(.2,.7,.3,1) ${360 + i * 140}ms` }}>
               {s.icon}
             </div>
             <div style={{ fontFamily: 'var(--f-warm)', fontSize: '20px', fontWeight: 700, color: 'var(--navy)', marginBottom: '8px' }}>{s.title}</div>
@@ -439,7 +552,19 @@ function Method({ isMobile }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME: PROGRAM STATUS BOARD
 // ═══════════════════════════════════════════════════════════════
+function getWarmStatusStyle(status) {
+  switch (status) {
+    case 'open':    return { label: 'مفتوح',     bg: 'var(--gold-soft)',         color: 'var(--navy)',      pulse: true };
+    case 'closing': return { label: 'يغلق قريباً', bg: 'var(--bronze)',            color: 'var(--sand)',      pulse: false };
+    case 'closed':  return { label: 'مغلق',      bg: 'rgba(26,41,66,0.08)',      color: 'var(--navy-soft)', pulse: false };
+    case 'varies':  return { label: 'يتفاوت',    bg: 'var(--sand-2)',            color: 'var(--navy-soft)', pulse: false };
+    case 'ongoing': return { label: 'مستمر',     bg: 'var(--sand-2)',            color: 'var(--navy-soft)', pulse: false };
+    default:        return { label: '',          bg: 'transparent',              color: 'var(--navy-soft)', pulse: false };
+  }
+}
+
 function ProgramBoard({ programFilter, setProgramFilter, isMobile }) {
+  const [sectionRef, visible] = useReveal();
   const filtered = PROGRAM_SCHEDULE.filter(p => {
     if (programFilter === 'all') return true;
     if (programFilter === 'phd') return p.levels.includes('phd') || p.levels.includes('all');
@@ -447,63 +572,80 @@ function ProgramBoard({ programFilter, setProgramFilter, isMobile }) {
   });
 
   return (
-    <section id="programs" style={{ maxWidth: 1280, margin: isMobile ? '48px auto 0' : '96px auto 0', padding: isMobile ? '0 16px' : '0 40px' }}>
-      <SectionEyebrow n="II" en="المنح الحكومية" ar="برامج الابتعاث" />
-      <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', color: 'var(--ink-soft)', marginTop: '-14px', marginBottom: '28px' }}>
-        ◆ المواعيد تقريبية بناءً على الدورات السابقة — تحقق من المواقع الرسمية.
-      </p>
+    <section id="programs" ref={sectionRef} style={{ background: 'var(--sand-card)', padding: isMobile ? '60px 16px' : '100px 40px', borderTop: '1px solid var(--warm-rule)', borderBottom: '1px solid var(--warm-rule)' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--gold)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '16px', fontFamily: 'var(--f-warm-num)', direction: 'ltr', ...reveal(visible, 0) }}>
+            <span style={{ width: 24, height: 1.5, background: 'var(--gold)' }} />
+            <span>Scholarship Programs</span>
+          </div>
+          <h2 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.25, color: 'var(--navy)', margin: '0 0 16px', letterSpacing: '-0.5px', ...reveal(visible, 80) }}>برامج الابتعاث الحكومية</h2>
+          <p style={{ fontFamily: 'var(--f-warm)', fontSize: '17px', color: 'var(--navy-soft)', lineHeight: 1.7, margin: 0, maxWidth: '720px', ...reveal(visible, 160) }}>
+            ١١ برنامج رسمي · مواعيد التقديم تقريبية بناءً على الدورات السابقة، تحقق دائماً من المواقع الرسمية قبل التقديم.
+          </p>
+        </div>
 
-      {/* Filter tabs */}
-      <div style={{ display: 'flex', gap: 0, marginBottom: '32px', borderBottom: '1px solid var(--hairline)', overflowX: 'auto' }}>
-        {LEVEL_FILTERS.map(f => (
-          <button key={f.value} onClick={() => setProgramFilter(f.value)}
-            style={{ padding: '12px 24px', background: 'transparent', border: 'none', borderBottom: programFilter === f.value ? '2px solid var(--accent)' : '2px solid transparent', fontFamily: 'var(--f-arabic)', fontSize: '15px', color: programFilter === f.value ? 'var(--ink)' : 'var(--ink-faint)', cursor: 'pointer', fontWeight: programFilter === f.value ? 500 : 400, transition: 'all .2s' }}>
-            {f.label}
-          </button>
-        ))}
-      </div>
+        {/* Filter pills */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', flexWrap: 'wrap', overflowX: isMobile ? 'auto' : 'visible', ...reveal(visible, 220) }}>
+          {LEVEL_FILTERS.map(f => {
+            const active = programFilter === f.value;
+            return (
+              <button key={f.value} onClick={() => setProgramFilter(f.value)}
+                style={{ background: active ? 'var(--navy)' : 'var(--sand)', border: '1px solid', borderColor: active ? 'var(--navy)' : 'var(--warm-rule)', padding: '10px 18px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontSize: '14px', fontWeight: 500, color: active ? 'var(--sand)' : 'var(--navy-soft)', cursor: 'pointer', transition: 'all .2s ease', whiteSpace: 'nowrap', flexShrink: 0 }}
+                onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.color = 'var(--navy)'; } }}
+                onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = 'var(--warm-rule)'; e.currentTarget.style.color = 'var(--navy-soft)'; } }}>
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Program grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: 0 }}>
-        {filtered.map((prog, i) => {
-          const status = getProgramStatus(prog);
-          const sStyle = getStatusStyle(status);
-          const nextOpen = status === 'closed' ? getNextOpenText(prog) : null;
-          const left = isMobile || i % 2 === 0;
-          const top = isMobile ? i === 0 : i < 2;
-          return (
-            <article key={prog.id} style={{ padding: '28px', paddingInlineStart: left ? 0 : '28px', paddingInlineEnd: left ? '28px' : 0, borderTop: top ? 'none' : '1px solid var(--hairline)', borderInlineStart: left ? 'none' : '1px solid var(--hairline)', background: 'transparent' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
-                <span style={{ ...edNum, fontSize: '40px', lineHeight: 0.9, color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400, direction: 'ltr' }}>
-                  №{String(i + 1).padStart(2, '0')}
-                </span>
-                <span style={{ ...edMono, padding: '4px 10px', background: sStyle.bg, color: sStyle.color }}>
-                  {sStyle.label}
-                </span>
-              </div>
-              <h3 style={{ fontFamily: 'var(--f-arabic-disp)', fontSize: '28px', lineHeight: 1.2, margin: '0 0 8px', fontWeight: 400 }}>{prog.name}</h3>
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
-                {(prog.levels.includes('all') ? ['all'] : prog.levels).map(lv => (
-                  <span key={lv} style={{ fontFamily: 'var(--f-arabic)', fontSize: '13px', fontWeight: 500, padding: '4px 10px', border: '1px solid var(--hairline)', color: 'var(--ink-soft)' }}>{LEVEL_DISPLAY[lv]}</span>
-                ))}
-              </div>
-              <p style={{ fontFamily: 'var(--f-arabic)', fontSize: '14px', lineHeight: 2, color: 'var(--ink-soft)', margin: '0 0 14px' }}>{prog.description}</p>
-              <div style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '14px', color: 'var(--ink-soft)', marginBottom: '8px' }}>
-                {!prog.ongoing && !prog.varies && <span>يفتح {prog.openLabel} · يغلق {prog.closeLabel}</span>}
-                {(prog.varies || prog.ongoing) && <span>{prog.openLabel}</span>}
-              </div>
-              {nextOpen && (
-                <div style={{ fontFamily: 'var(--f-arabic)', fontSize: '13px', color: 'var(--accent)', fontWeight: 500, marginBottom: '12px' }}>
-                  التالي: يفتح {nextOpen} تقريباً
+        {/* Program card grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}>
+          {filtered.map((prog, i) => {
+            const status = getProgramStatus(prog);
+            const sStyle = getWarmStatusStyle(status);
+            const nextOpen = status === 'closed' ? getNextOpenText(prog) : null;
+            const delay = 280 + Math.min(i, 8) * 70;
+            return (
+              <article key={prog.id} style={{ background: 'var(--sand)', border: '1px solid var(--warm-rule)', borderRadius: '20px', padding: '24px', transition: 'transform .3s ease, box-shadow .3s ease, border-color .3s ease, opacity .7s cubic-bezier(.2,.7,.3,1) ' + delay + 'ms', opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(26,41,66,0.08)'; e.currentTarget.style.borderColor = 'var(--gold-soft)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'var(--warm-rule)'; }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <span style={{ fontFamily: 'var(--f-warm-num)', fontSize: '13px', fontWeight: 700, color: 'var(--gold)', direction: 'ltr', letterSpacing: '0.5px' }}>
+                    №{String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span style={{ fontFamily: 'var(--f-warm)', fontSize: '12px', fontWeight: 700, padding: '5px 12px', borderRadius: '999px', background: sStyle.bg, color: sStyle.color, animation: sStyle.pulse ? 'gold-pulse-pill 2.4s ease-out infinite' : 'none' }}>
+                    {sStyle.label}
+                  </span>
                 </div>
-              )}
-              <a href={prog.link} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: '15px', borderBottom: '1px solid var(--ink)', paddingBottom: '2px' }}>
-                <span>الموقع الرسمي</span><span>→</span>
-              </a>
-            </article>
-          );
-        })}
+                <h3 style={{ fontFamily: 'var(--f-warm)', fontSize: '22px', lineHeight: 1.3, margin: '0 0 10px', fontWeight: 700, color: 'var(--navy)' }}>{prog.name}</h3>
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                  {(prog.levels.includes('all') ? ['all'] : prog.levels).map(lv => (
+                    <span key={lv} style={{ fontFamily: 'var(--f-warm)', fontSize: '11px', fontWeight: 600, padding: '3px 10px', background: 'var(--sand-2)', color: 'var(--navy-soft)', borderRadius: '999px' }}>{LEVEL_DISPLAY[lv]}</span>
+                  ))}
+                </div>
+                <p style={{ fontFamily: 'var(--f-warm)', fontSize: '14px', lineHeight: 1.8, color: 'var(--navy-soft)', margin: '0 0 14px' }}>{prog.description}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--f-warm)', fontSize: '13px', color: 'var(--navy)', marginBottom: '8px', fontWeight: 500 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--gold)' }}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  {!prog.ongoing && !prog.varies && <span>يفتح {prog.openLabel} · يغلق {prog.closeLabel}</span>}
+                  {(prog.varies || prog.ongoing) && <span>{prog.openLabel}</span>}
+                </div>
+                {nextOpen && (
+                  <div style={{ fontFamily: 'var(--f-warm)', fontSize: '12px', color: 'var(--bronze)', fontWeight: 600, marginBottom: '12px' }}>
+                    التالي: يفتح {nextOpen} تقريباً
+                  </div>
+                )}
+                <a href={prog.link} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--f-warm)', fontSize: '13px', fontWeight: 600, color: 'var(--navy)', borderBottom: '1.5px solid var(--gold)', paddingBottom: '2px', transition: 'color .2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = 'var(--gold)'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'var(--navy)'}>
+                  <span>الموقع الرسمي</span><span>←</span>
+                </a>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -565,6 +707,9 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
   const [search, setSearch] = useState('');
   const [showCount, setShowCount] = useState(12);
   const [expandedUni, setExpandedUni] = useState(null);
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [headerRef, headerVisible] = useReveal();
+  const [gridRef, gridVisible] = useReveal({ threshold: 0.05 });
 
   if (uniLoading) {
     return (
@@ -592,18 +737,20 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
   return (
     <section id="explorer" style={{ background: 'var(--sand-2)', padding: isMobile ? '60px 16px' : '100px 40px' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-        <div style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--gold)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '16px', fontFamily: 'var(--f-warm-num)', direction: 'ltr' }}>
+        <div ref={headerRef} style={{ marginBottom: '40px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--gold)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '16px', fontFamily: 'var(--f-warm-num)', direction: 'ltr', ...reveal(headerVisible, 0) }}>
             <span style={{ width: 24, height: 1.5, background: 'var(--gold)' }} />
             <span>University Explorer</span>
           </div>
-          <h2 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.25, color: 'var(--navy)', margin: '0 0 16px', letterSpacing: '-0.5px' }}>استكشف {universities.length} جامعة بنفسك</h2>
-          <p style={{ fontFamily: 'var(--f-warm)', fontSize: '17px', color: 'var(--navy-soft)', lineHeight: 1.7, margin: 0, maxWidth: '600px' }}>ابحث وقارن بين الجامعات حسب الدولة والمجال والفئة. كل البيانات محدّثة ومراجعة.</p>
+          <h2 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '28px' : 'clamp(32px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.25, color: 'var(--navy)', margin: '0 0 16px', letterSpacing: '-0.5px', ...reveal(headerVisible, 80) }}>استكشف {universities.length} جامعة بنفسك</h2>
+          <p style={{ fontFamily: 'var(--f-warm)', fontSize: '17px', color: 'var(--navy-soft)', lineHeight: 1.7, margin: 0, maxWidth: '600px', ...reveal(headerVisible, 160) }}>ابحث وقارن بين الجامعات حسب الدولة والمجال والفئة. كل البيانات محدّثة ومراجعة.</p>
         </div>
 
         {/* Search bar */}
-        <div style={{ background: 'var(--sand-card)', borderRadius: '20px', padding: '8px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', boxShadow: '0 4px 20px rgba(26,41,66,0.06)', border: '1px solid var(--warm-rule)', maxWidth: '720px' }}>
+        <div style={{ background: 'var(--sand-card)', borderRadius: '20px', padding: '8px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', boxShadow: '0 4px 20px rgba(26,41,66,0.06)', border: '1px solid var(--warm-rule)', maxWidth: '720px', transition: 'box-shadow .3s ease, border-color .3s ease', ...reveal(headerVisible, 220) }}>
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="ابحث عن جامعة، مدينة، أو تخصص..."
+            onFocus={e => { e.currentTarget.parentElement.style.borderColor = 'var(--gold-soft)'; e.currentTarget.parentElement.style.boxShadow = '0 0 0 4px rgba(var(--gold-shadow), 0.18), 0 4px 20px rgba(26,41,66,0.08)'; }}
+            onBlur={e => { e.currentTarget.parentElement.style.borderColor = 'var(--warm-rule)'; e.currentTarget.parentElement.style.boxShadow = '0 4px 20px rgba(26,41,66,0.06)'; }}
             style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', padding: '14px 20px', fontFamily: 'var(--f-warm)', fontSize: isMobile ? '14px' : '16px', color: 'var(--navy)', direction: 'rtl' }} />
           <div style={{ background: 'var(--gold)', color: 'var(--navy)', padding: '12px 18px', borderRadius: '14px', fontFamily: 'var(--f-warm)', fontWeight: 700, fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -643,9 +790,11 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
         </div>
 
         {/* University card grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+        <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {showing.map((u, i) => {
             const isExpanded = expandedUni === i;
+            const isHovered = hoveredCard === i;
+            const cardDelay = Math.min(i, 9) * 60;
             const mfLabels = [];
             if (u.muslimFriendly) {
               if (MF_LABELS.halal[u.muslimFriendly.halal]) mfLabels.push(MF_LABELS.halal[u.muslimFriendly.halal]);
@@ -654,16 +803,16 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
               if (MF_LABELS.prayerRoom[u.muslimFriendly.prayerRoom]) mfLabels.push(MF_LABELS.prayerRoom[u.muslimFriendly.prayerRoom]);
             }
             return (
-              <div key={i} style={{ background: 'var(--sand-card)', border: '1px solid var(--warm-rule)', borderRadius: '20px', padding: '20px', transition: 'all .3s ease', display: 'flex', flexDirection: 'column', gap: '14px' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(26,41,66,0.08)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'var(--warm-rule)'; e.currentTarget.style.boxShadow = 'none'; }}>
+              <div key={i} style={{ background: 'var(--sand-card)', border: '1px solid var(--warm-rule)', borderRadius: '20px', padding: '20px', transition: 'transform .3s ease, border-color .3s ease, box-shadow .3s ease, opacity .7s cubic-bezier(.2,.7,.3,1) ' + cardDelay + 'ms', display: 'flex', flexDirection: 'column', gap: '14px', opacity: gridVisible ? 1 : 0, transform: gridVisible ? 'translateY(0)' : 'translateY(20px)' }}
+                onMouseEnter={e => { setHoveredCard(i); e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(26,41,66,0.08)'; }}
+                onMouseLeave={e => { setHoveredCard(null); e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'var(--warm-rule)'; e.currentTarget.style.boxShadow = 'none'; }}>
                 <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '14px', background: 'linear-gradient(135deg, var(--gold-soft) 0%, var(--sand-2) 100%)', overflow: 'hidden' }}>
                   {COUNTRY_IMAGES[u.country] && (
                     <img src={COUNTRY_IMAGES[u.country]} alt={`حرم جامعة في ${u.country}`} loading="lazy"
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transform: isHovered ? 'scale(1.07)' : 'scale(1)', transition: 'transform .6s cubic-bezier(.2,.7,.3,1)' }}
                       onError={e => { e.currentTarget.style.display = 'none'; }} />
                   )}
-                  <div style={{ position: 'absolute', bottom: 8, right: 10, background: 'rgba(26,41,66,0.75)', color: 'var(--sand)', padding: '3px 10px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontSize: '11px', fontWeight: 600, backdropFilter: 'blur(4px)' }}>
+                  <div style={{ position: 'absolute', bottom: 8, right: 10, padding: '3px 10px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontSize: '11px', fontWeight: 600, backdropFilter: 'blur(4px)', transform: isHovered ? 'translateY(-4px)' : 'translateY(0)', transition: 'transform .3s ease, background .3s ease, color .3s ease', background: isHovered ? 'rgba(201,169,97,0.95)' : 'rgba(26,41,66,0.75)', color: isHovered ? 'var(--navy)' : 'var(--sand)' }}>
                     {u.country}
                   </div>
                 </div>
@@ -742,19 +891,26 @@ function UniversityExplorer({ universities, loading: uniLoading, isMobile }) {
 // HOME: CLOSING CTA + FOOTER
 // ═══════════════════════════════════════════════════════════════
 function ClosingCTA({ onStart, isMobile }) {
+  const [sectionRef, visible] = useReveal();
+  const [btnHover, setBtnHover] = useState(false);
   return (
-    <section style={{ background: 'var(--navy)', color: 'var(--sand)', padding: isMobile ? '60px 16px' : '100px 40px', textAlign: 'center' }}>
-      <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-        <h2 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '32px' : 'clamp(32px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.25, margin: '0 0 16px', letterSpacing: '-0.5px', color: 'var(--sand)' }}>جامعتك في الخارج تنتظرك</h2>
-        <p style={{ fontFamily: 'var(--f-warm)', fontSize: '17px', color: 'rgba(245,239,227,0.7)', margin: '0 0 36px', lineHeight: 1.7 }}>
+    <section ref={sectionRef} style={{ background: 'var(--navy)', color: 'var(--sand)', padding: isMobile ? '60px 16px' : '100px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      {/* Soft gold glow behind the CTA */}
+      <div aria-hidden="true" style={{ position: 'absolute', top: '50%', left: '50%', width: 600, height: 600, transform: 'translate(-50%, -50%)', background: 'radial-gradient(circle, rgba(var(--gold-shadow), 0.18) 0%, transparent 60%)', pointerEvents: 'none', opacity: visible ? 1 : 0, transition: 'opacity 1.2s ease' }} />
+      <div style={{ maxWidth: '720px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontFamily: 'var(--f-warm)', fontSize: isMobile ? '32px' : 'clamp(32px, 4vw, 48px)', fontWeight: 700, lineHeight: 1.25, margin: '0 0 16px', letterSpacing: '-0.5px', color: 'var(--sand)', ...reveal(visible, 0) }}>جامعتك في الخارج تنتظرك</h2>
+        <p style={{ fontFamily: 'var(--f-warm)', fontSize: '17px', color: 'rgba(245,239,227,0.7)', margin: '0 0 36px', lineHeight: 1.7, ...reveal(visible, 120) }}>
           ابدأ رحلتك الآن، شارك ملفك، واحصل على توصيات شخصية لأفضل الجامعات والمنح الحكومية المناسبة لك.
         </p>
-        <button onClick={onStart} style={{ background: 'var(--gold)', color: 'var(--navy)', border: 'none', padding: '18px 36px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontWeight: 700, fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 16px rgba(var(--gold-shadow),0.4)', transition: 'all .25s ease' }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(var(--gold-shadow),0.6)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(var(--gold-shadow),0.4)'; }}>
-          <span>ابدأ الاستشارة الآن</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        </button>
+        <div style={reveal(visible, 240)}>
+          <button onClick={onStart}
+            onMouseEnter={() => setBtnHover(true)}
+            onMouseLeave={() => setBtnHover(false)}
+            style={{ background: 'var(--gold)', color: 'var(--navy)', border: 'none', padding: '18px 36px', borderRadius: '999px', fontFamily: 'var(--f-warm)', fontWeight: 700, fontSize: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px', transform: btnHover ? 'translateY(-2px)' : 'translateY(0)', transition: 'transform .25s ease', animation: btnHover ? 'none' : 'gold-pulse 2.4s ease-out infinite', boxShadow: btnHover ? '0 10px 32px rgba(var(--gold-shadow), 0.6)' : '0 4px 16px rgba(var(--gold-shadow), 0.4)' }}>
+            <span>ابدأ الاستشارة الآن</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+        </div>
       </div>
     </section>
   );
@@ -1689,9 +1845,11 @@ export default function Home() {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
+      <ScrollProgress />
       <Nav onStart={() => setScreen('cvUpload')} isMobile={isMobile} />
       <Hero onStart={() => setScreen('cvUpload')} isMobile={isMobile} />
       <HowItWorks isMobile={isMobile} />
+      <ProgramBoard programFilter={programFilter} setProgramFilter={setProgramFilter} isMobile={isMobile} />
       <UniversityExplorer universities={universities} loading={uniLoading} isMobile={isMobile} />
       <ClosingCTA onStart={() => setScreen('cvUpload')} isMobile={isMobile} />
       <Footer isMobile={isMobile} />
