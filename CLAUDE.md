@@ -186,16 +186,18 @@ Still active for `QuestionnaireScreen` and `ResultsScreen`. Tokens preserved in 
 | `campus-japan.jpg` | Modern Asian campus | ✅ present |
 | `campus-spain.jpg` | Spanish plaza/cathedral | ✅ present |
 | `campus-uk.jpg` | English collegiate gothic | ✅ present |
-| `campus-usa.jpg` | — | ⏳ pending |
-| `campus-newzealand.jpg` | — | ⏳ pending |
-| `campus-southkorea.jpg` | — | ⏳ pending |
-| `campus-ireland.jpg` | — | ⏳ pending |
-| `campus-malaysia.jpg` | — | ⏳ pending |
-| `campus-turkey.jpg` | — | ⏳ pending |
-| `campus-netherlands.jpg` | — | ⏳ pending |
-| `campus-france.jpg` | — | ⏳ pending |
+| `campus-usa.jpg` | Ivy League autumn quad | ✅ present |
+| `campus-newzealand.jpg` | Auckland city campus | ✅ present |
+| `campus-southkorea.jpg` | Seoul campus, ginkgo autumn | ✅ present |
+| `campus-ireland.jpg` | Trinity Dublin style courtyard | ✅ present |
+| `campus-malaysia.jpg` | Tropical campus, palms | ✅ present |
+| `campus-turkey.jpg` | Bosphorus hillside campus | ✅ present |
+| `campus-netherlands.jpg` | Amsterdam canal building | ✅ present |
+| `campus-france.jpg` | Sorbonne Paris in autumn | ✅ present |
 
-When user says "more images in", commit the new files without code changes (they wire up automatically via `COUNTRY_IMAGES`).
+All 14 country campus photos are now in place. New images added via the `mcp__mcp-image__generate_image` MCP tool (Gemini backend).
+
+**Lesson learned on Gemini image gen:** Long detailed prompts (40+ words) repeatedly returned 503 "high demand" errors. Short prompts (5-10 words, named landmark + season) worked reliably. Example that works: `"Sorbonne Paris in autumn."` Use the Gemini MCP with concise, landmark-anchored prompts to avoid 503 cycling.
 
 All `<img>` tags use `onError` to silently fall back to a gradient if a photo is missing.
 
