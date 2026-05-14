@@ -27,11 +27,23 @@ function useReveal({ threshold = 0.15, rootMargin = '0px 0px -80px 0px' } = {}) 
       setVisible(true); return;
     }
     const node = ref.current;
+    // 1) If element is already in viewport on mount (page reload mid-scroll,
+    //    above-the-fold sections, etc.), reveal immediately — no waiting on IO.
+    const rect = node.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
+    // 2) Otherwise, wait for scroll-in.
     const io = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setVisible(true); io.disconnect(); }
     }, { threshold, rootMargin });
     io.observe(node);
-    return () => io.disconnect();
+    // 3) Failsafe: if for any reason the observer never fires (e.g. browser
+    //    quirk or element gets removed from layout), force-show after 2s so
+    //    content never stays invisible.
+    const fallback = setTimeout(() => setVisible(true), 2000);
+    return () => { io.disconnect(); clearTimeout(fallback); };
   }, [threshold, rootMargin]);
   return [ref, visible];
 }
